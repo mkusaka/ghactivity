@@ -26,7 +26,7 @@ export async function fetchEventsWithEnv(
   if (prevEtag) headers["If-None-Match"] = prevEtag;
 
   const gh = await fetch(
-    `https://api.github.com/users/${encodeURIComponent(user)}/events?per_page=100`,
+    `https://api.github.com/users/${encodeURIComponent(user)}/events/public?per_page=100`,
     { headers }
   );
 
@@ -43,7 +43,7 @@ export async function fetchEventsWithEnv(
     if (token) freshHeaders.Authorization = `Bearer ${token}`;
     
     const freshGh = await fetch(
-      `https://api.github.com/users/${encodeURIComponent(user)}/events?per_page=100`,
+      `https://api.github.com/users/${encodeURIComponent(user)}/events/public?per_page=100`,
       { headers: freshHeaders }
     );
     
@@ -68,7 +68,24 @@ export async function fetchEventsWithEnv(
 
   if (!gh.ok) {
     if (prev) return { events: JSON.parse(prev), meta: { cache: "STALE" } };
-    throw new Error(`GitHub error ${gh.status}`);
+    
+    // Better error messages for common GitHub API errors
+    if (gh.status === 403) {
+      const remaining = gh.headers.get("X-RateLimit-Remaining");
+      const reset = gh.headers.get("X-RateLimit-Reset");
+      
+      if (remaining === "0") {
+        const resetDate = reset ? new Date(parseInt(reset) * 1000).toLocaleTimeString() : "soon";
+        throw new Error(`GitHub API rate limit exceeded. Resets at ${resetDate}. Set GITHUB_PAT secret for higher limits.`);
+      }
+      throw new Error(`GitHub API access denied (403). This might be due to rate limits. Set GITHUB_PAT secret for authentication.`);
+    }
+    
+    if (gh.status === 404) {
+      throw new Error(`User "${user}" not found on GitHub`);
+    }
+    
+    throw new Error(`GitHub API error ${gh.status}`);
   }
 
   const body = await gh.text();

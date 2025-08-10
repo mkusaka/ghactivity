@@ -44,7 +44,7 @@ function eventIconAndText(ev: GhEvent) {
       const commits = ev.payload?.commits || [];
       const count = commits.length;
       return {
-        icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600",
+        icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400",
         title: `pushed ${count} commit${count !== 1 ? "s" : ""}`,
         desc: (
           <span>
@@ -62,7 +62,7 @@ function eventIconAndText(ev: GhEvent) {
       const title = merged ? "merged a pull request" : `${action} a pull request`;
       return {
         icon: merged ? <GitMerge className="w-4 h-4" /> : <GitPullRequest className="w-4 h-4" />,
-        color: merged ? "bg-purple-500/15 text-purple-600" : "bg-emerald-500/15 text-emerald-600",
+        color: merged ? "bg-purple-500/15 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400" : "bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
         title,
         desc: (
           <span>
@@ -75,7 +75,7 @@ function eventIconAndText(ev: GhEvent) {
       const action = ev.payload?.action;
       return {
         icon: <AlertTriangle className="w-4 h-4" />,
-        color: action === "opened" ? "bg-rose-500/15 text-rose-600" : "bg-zinc-500/15 text-zinc-700",
+        color: action === "opened" ? "bg-rose-500/15 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400" : "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400",
         title: `${action} an issue`,
         desc: (
           <span>
@@ -85,23 +85,23 @@ function eventIconAndText(ev: GhEvent) {
       };
     }
     case "IssueCommentEvent":
-      return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-sky-500/15 text-sky-600", title: "commented on an issue", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+      return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-sky-500/15 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400", title: "commented on an issue", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
     case "PullRequestReviewEvent":
-      return { icon: <Eye className="w-4 h-4" />, color: "bg-amber-500/15 text-amber-600", title: `reviewed a pull request${ev.payload?.review?.state ? ` (${String(ev.payload.review.state).toLowerCase()})` : ""}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+      return { icon: <Eye className="w-4 h-4" />, color: "bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400", title: `reviewed a pull request${ev.payload?.review?.state ? ` (${String(ev.payload.review.state).toLowerCase()})` : ""}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
     case "ReleaseEvent":
-      return { icon: <Tag className="w-4 h-4" />, color: "bg-fuchsia-500/15 text-fuchsia-600", title: "published a release", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — {ev.payload?.release?.tag_name}</span>) };
+      return { icon: <Tag className="w-4 h-4" />, color: "bg-fuchsia-500/15 text-fuchsia-600 dark:bg-fuchsia-500/20 dark:text-fuchsia-400", title: "published a release", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — {ev.payload?.release?.tag_name}</span>) };
     case "ForkEvent":
-      return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+      return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
     case "WatchEvent":
-      return { icon: <Star className="w-4 h-4" />, color: "bg-yellow-500/15 text-yellow-700", title: "starred a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+      return { icon: <Star className="w-4 h-4" />, color: "bg-yellow-500/15 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400", title: "starred a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
     case "CreateEvent":
-      return { icon: <GitBranch className="w-4 h-4" />, color: "bg-teal-500/15 text-teal-600", title: `created a ${ev.payload?.ref_type}`, desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+      return { icon: <GitBranch className="w-4 h-4" />, color: "bg-teal-500/15 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400", title: `created a ${ev.payload?.ref_type}`, desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
     case "DeleteEvent":
-      return { icon: <Trash2 className="w-4 h-4" />, color: "bg-zinc-500/15 text-zinc-700", title: `deleted a ${ev.payload?.ref_type}`, desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+      return { icon: <Trash2 className="w-4 h-4" />, color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400", title: `deleted a ${ev.payload?.ref_type}`, desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
     case "MemberEvent":
-      return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+      return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
     default:
-      return { icon: <Link2 className="w-4 h-4" />, color: "bg-gray-500/10 text-gray-700", title: ev.type, desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+      return { icon: <Link2 className="w-4 h-4" />, color: "bg-gray-500/10 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400", title: ev.type, desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
 }
 
@@ -120,7 +120,6 @@ export default function GhTimeline({
   const [compact, setCompact] = useState(false);
   const [error, setError] = useState("");
 
-  // Poll via Server Action（公開API不要）
   useEffect(() => {
     const t = setInterval(async () => {
       try {
@@ -156,10 +155,7 @@ export default function GhTimeline({
     return c;
   }, [events]);
 
-  const filtered = useMemo(() => {
-    if (allowed.size === 0) return events;
-    return events.filter(e => allowed.has(e.type));
-  }, [events, allowed]);
+  const filtered = useMemo(() => (allowed.size === 0 ? events : events.filter(e => allowed.has(e.type))), [events, allowed]);
 
   const onRefresh = async () => {
     try {
@@ -187,24 +183,36 @@ export default function GhTimeline({
 
   return (
     <div className="mx-auto max-w-5xl w-full">
+      {/* ヘッダ：ボタン類は不透明白＋ring */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">{user} — Recent GitHub Activity</h1>
-          <p className="text-sm text-slate-500">Timeline of public (or authorized) events.</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">{user} — Recent GitHub Activity</h1>
+          <p className="text-sm text-slate-600 dark:text-slate-400">Timeline of public (or authorized) events.</p>
         </div>
         <div className="flex gap-2 items-center">
-          <button onClick={onRefresh} disabled={loading} className="px-3 py-2 rounded-xl border border-slate-200 bg-white/60 hover:bg-white inline-flex items-center gap-2">
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center gap-2"
+          >
             <RefreshCw className="w-4 h-4" />Refresh
           </button>
-          <button onClick={downloadJson} className="px-3 py-2 rounded-xl border border-slate-200 bg-white/60 hover:bg-white inline-flex items-center gap-2">
+          <button
+            onClick={downloadJson}
+            className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center gap-2"
+          >
             <Download className="w-4 h-4" />Export JSON
           </button>
-          <button onClick={copyCount} className="px-3 py-2 rounded-xl border border-slate-200 bg-white/60 hover:bg-white inline-flex items-center gap-2">
+          <button
+            onClick={copyCount}
+            className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center gap-2"
+          >
             <Copy className="w-4 h-4" />Copy count
           </button>
         </div>
       </header>
 
+      {/* サマリカード：不透明白＋ring */}
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <Stat label="Commits" value={counters.commits} icon={<GitCommit className="w-4 h-4" />} />
         <Stat label="PRs (opened/merged)" value={`${counters.prsOpened}/${counters.prsMerged}`} icon={<GitPullRequest className="w-4 h-4" />} />
@@ -215,10 +223,11 @@ export default function GhTimeline({
         <Stat label="Releases" value={counters.releases} icon={<Tag className="w-4 h-4" />} />
       </section>
 
-      <section className="mt-6 p-4 rounded-2xl border border-slate-200 bg-white/60">
+      {/* フィルタカード：不透明白＋ring */}
+      <section className="mt-6 p-4 rounded-2xl bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <label className="inline-flex items-center gap-2 text-xs text-slate-600">
+            <label className="inline-flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
               <input type="checkbox" checked={compact} onChange={e => setCompact(e.target.checked)} />
               Compact
             </label>
@@ -228,19 +237,24 @@ export default function GhTimeline({
         </div>
       </section>
 
+      {/* タイムライン本体 */}
       <section className="mt-6">
         {Object.keys(grouped).length === 0 && (
-          <div className="text-slate-500 text-sm">No events.</div>
+          <div className="text-slate-500 dark:text-slate-400 text-sm">No events.</div>
         )}
 
         <div className="space-y-8">
-          {Object.entries(grouped).sort((a, b) => new Date(b[0]).valueOf() - new Date(a[0]).valueOf()).map(([day, items]) => (
+          {Object.entries(grouped)
+            .sort((a, b) => new Date(b[0]).valueOf() - new Date(a[0]).valueOf())
+            .map(([day, items]) => (
             <div key={day}>
-              <div className="sticky top-0 z-10 py-1 backdrop-blur bg-white/60">
-                <h3 className="text-sm font-semibold text-slate-500">{day}</h3>
+              <div className="sticky top-0 z-10 py-1 backdrop-blur bg-slate-50/90 dark:bg-slate-900/90">
+                <h3 className="text-sm font-semibold text-slate-600 dark:text-slate-400">{day}</h3>
               </div>
-              <ol className="relative ml-3 border-l border-slate-200 pl-6">
-                {items.sort((a, b) => new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf()).map((ev) => (
+              <ol className="relative ml-3 border-l border-slate-200 dark:border-slate-700 pl-6">
+                {items
+                  .sort((a, b) => new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf())
+                  .map((ev) => (
                   <TimelineItem key={ev.id} ev={ev} compact={compact} />
                 ))}
               </ol>
@@ -254,11 +268,14 @@ export default function GhTimeline({
 
 function Stat({ label, value, icon }: { label: string; value: string | number; icon: React.ReactNode }) {
   return (
-    <motion.div layout className="p-4 rounded-2xl border border-slate-200 bg-white/60 flex items-center gap-3">
-      <div className="p-2 rounded-xl bg-slate-100">{icon}</div>
+    <motion.div
+      layout
+      className="p-4 rounded-2xl bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm flex items-center gap-3"
+    >
+      <div className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800">{icon}</div>
       <div>
-        <div className="text-xs text-slate-500">{label}</div>
-        <div className="text-lg font-semibold">{String(value)}</div>
+        <div className="text-xs text-slate-600 dark:text-slate-400">{label}</div>
+        <div className="text-lg font-semibold text-slate-900 dark:text-slate-100">{String(value)}</div>
       </div>
     </motion.div>
   );
@@ -283,7 +300,11 @@ function FilterPillBar({
               if (n.has(t)) n.delete(t); else n.add(t);
               setAllowed(n);
             }}
-            className={`px-3 py-1 rounded-full text-xs border ${isSelected ? "bg-slate-900 text-white border-slate-900" : "bg-transparent text-slate-600 border-slate-300"}`}
+            className={`px-3 py-1 rounded-full text-xs ring-1 ${
+              isSelected
+                ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 ring-slate-900 dark:ring-slate-100"
+                : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 ring-slate-300 dark:ring-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+            }`}
             aria-pressed={isSelected}
             title={active ? `Filter: showing ${t}` : `Filter: hidden ${t}`}
           >
@@ -291,7 +312,10 @@ function FilterPillBar({
           </button>
         );
       })}
-      <button onClick={() => setAllowed(new Set())} className="px-3 py-1 rounded-full text-xs border border-slate-300 text-slate-600">
+      <button
+        onClick={() => setAllowed(new Set())}
+        className="px-3 py-1 rounded-full text-xs bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 ring-1 ring-slate-300 dark:ring-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+      >
         Clear
       </button>
     </div>
@@ -305,21 +329,21 @@ function TimelineItem({ ev, compact }: { ev: GhEvent; compact: boolean }) {
 
   return (
     <li className="mb-6">
-      <div className="absolute -left-[9px] mt-1 w-4 h-4 rounded-full border border-slate-200 bg-white" />
+      <div className="absolute -left-[9px] mt-1 w-4 h-4 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
           <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${meta.color}`}>{meta.icon}<span>{ev.type.replace(/Event$/, "")}</span></span>
-          <span className="text-sm">{meta.title} {meta.desc}</span>
+          <span className="text-sm text-slate-900 dark:text-slate-100">{meta.title} {meta.desc}</span>
         </div>
-        <div className="text-xs text-slate-500 flex items-center gap-2">
+        <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
           <Clock className="w-3 h-3" /> {fmtRel(ev.created_at)}
           <a className="link" href={`https://github.com/${ev.actor?.login}`} target="_blank" rel="noreferrer">@{ev.actor?.login}</a>
-          <span className="text-slate-300">•</span> id: {ev.id}
+          <span className="text-slate-300 dark:text-slate-600">•</span> id: {ev.id}
         </div>
 
         {ev.type === "PushEvent" && commits.length > 0 && (
           <div className="pl-6">
-            <button onClick={() => setOpen(v => !v)} className="mt-1 inline-flex items-center gap-1 text-xs text-slate-600">
+            <button onClick={() => setOpen(v => !v)} className="mt-1 inline-flex items-center gap-1 text-xs text-slate-700 dark:text-slate-300">
               {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} commits ({commits.length})
             </button>
             <AnimatePresence>
@@ -327,8 +351,8 @@ function TimelineItem({ ev, compact }: { ev: GhEvent; compact: boolean }) {
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
                   <ul className="mt-2 space-y-1 text-xs">
                     {commits.map((c: any) => (
-                      <li key={c.sha} className="border border-slate-200 rounded-lg p-2">
-                        <code className="text-[11px] bg-slate-100 px-1 py-0.5 rounded">{c.sha.slice(0, 7)}</code>
+                      <li key={c.sha} className="rounded-lg p-2 bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800">
+                        <code className="text-[11px] bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">{c.sha.slice(0, 7)}</code>
                         <span className="ml-2 whitespace-pre-wrap break-words">{c.message}</span>
                       </li>
                     ))}

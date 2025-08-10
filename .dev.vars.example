@@ -1,0 +1,4 @@
+# GitHub Personal Access Token for higher API rate limits
+# Create a token at: https://github.com/settings/tokens
+# Required scopes: public_repo (or repo for private repos)
+GITHUB_PAT=your_github_personal_access_token_here

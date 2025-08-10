@@ -12,7 +12,7 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
   const { events, meta } = await getEventsAction(user);
 
   return (
-    <main className="min-h-dvh bg-gradient-to-b from-white to-slate-50 text-slate-900">
+    <main className="min-h-dvh bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
       <div className="mx-auto max-w-5xl p-6">
         <GhTimeline user={user} initial={events} pollSec={meta.pollInterval ?? 60} />
       </div>
