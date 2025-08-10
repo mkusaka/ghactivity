@@ -11,7 +11,7 @@ export type EventsResult = {
 };
 
 export async function fetchEventsWithEnv(
-  env: { GITHUB_EVENTS_CACHE?: KVNamespace; GITHUB_PAT?: string },
+  env: Partial<CloudflareEnv>,
   user: string
 ): Promise<EventsResult> {
   const kv = env.GITHUB_EVENTS_CACHE;
@@ -58,7 +58,16 @@ export async function fetchEventsWithEnv(
         etag 
       },
     };
-  } catch (error: any) {
+  } catch (error) {
+    // Type guard for Octokit errors
+    const isOctokitError = (e: unknown): e is { status: number; response?: { headers?: Record<string, string> }; message?: string } => {
+      return typeof e === 'object' && e !== null && 'status' in e;
+    };
+
+    if (!isOctokitError(error)) {
+      throw error;
+    }
+
     // Handle 304 Not Modified
     if (error.status === 304) {
       if (prev) {
@@ -99,7 +108,7 @@ export async function fetchEventsWithEnv(
             etag 
           },
         };
-      } catch (freshError: any) {
+      } catch (freshError) {
         throw freshError;
       }
     }

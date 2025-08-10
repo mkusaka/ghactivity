@@ -10,7 +10,7 @@ export const contentType = "image/png";
 export default async function Og({ params }: { params: Promise<{ user: string }> }) {
   const { user } = await params;
   const { env } = getCloudflareContext();
-  const { events } = await fetchEventsWithEnv(env as any, user);
+  const { events } = await fetchEventsWithEnv(env, user);
   const first = events?.[0];
   const subtitle = first?.type && first?.repo?.name
     ? `${first.type.replace(/Event$/, "")} in ${first.repo.name}`

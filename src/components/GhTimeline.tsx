@@ -52,7 +52,7 @@ function eventIconAndText(ev: GithubEvent) {
             </a>
           </span>
         ),
-        extra: commits.map((c: any) => ({ sha: c.sha, msg: c.message })),
+        extra: commits.map((c) => ({ sha: c.sha, msg: c.message })),
       };
     }
     case "PullRequestEvent": {
@@ -188,8 +188,8 @@ export default function GhTimeline({
       setLoading(true);
       const { events } = await getEventsAction(user);
       setEvents(events);
-    } catch (e: any) {
-      setError(e?.message ?? String(e));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setLoading(false);
     }
@@ -376,7 +376,7 @@ function TimelineItem({ ev, compact }: { ev: GithubEvent; compact: boolean }) {
               {open && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
                   <ul className="mt-2 space-y-1 text-xs">
-                    {commits.map((c: any) => (
+                    {commits.map((c) => (
                       <li key={c.sha} className="rounded-lg p-2 bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800">
                         <a 
                           href={`https://github.com/${ev.repo?.name}/commit/${c.sha}`} 

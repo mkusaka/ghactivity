@@ -11,5 +11,5 @@ import { fetchEventsWithEnv } from "./shared";
  */
 export async function getEventsAction(user: string) {
   const { env } = getCloudflareContext();
-  return fetchEventsWithEnv(env as any, user);
+  return fetchEventsWithEnv(env, user);
 }

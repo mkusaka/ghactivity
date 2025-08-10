@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ user: str
   // Lightweight fetch for metadata (reusing the same function)
   const { user } = await params;
   const { env } = getCloudflareContext();
-  const { events } = await fetchEventsWithEnv(env as any, user);
+  const { events } = await fetchEventsWithEnv(env, user);
 
   const first = events?.[0];
   const title = `${user} — Recent GitHub Activity`;
