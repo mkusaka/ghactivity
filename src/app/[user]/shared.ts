@@ -14,7 +14,7 @@ export async function fetchEventsWithEnv(
   env: Partial<CloudflareEnv>,
   user: string
 ): Promise<EventsResult> {
-  const kv = env.GITHUB_EVENTS_CACHE;
+  const kv = env.GHACTIVITY_KV;
   const token = env.GITHUB_PAT;
 
   const listKey = `events:${user}`;

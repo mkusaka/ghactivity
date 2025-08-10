@@ -19,10 +19,10 @@
 		"enabled": true
 	},
 
-	// KV namespace for GitHub Events caching
+	// KV namespace for ghactivity data caching
 	"kv_namespaces": [
 		{
-			"binding": "GITHUB_EVENTS_CACHE",
+			"binding": "GHACTIVITY_KV",
 			"id": "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
 		}
 	]

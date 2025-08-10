@@ -67,7 +67,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser.
 
 ```bash
 # Create a KV namespace for caching
-wrangler kv:namespace create GITHUB_EVENTS_CACHE
+wrangler kv:namespace create GHACTIVITY_KV
 
 # Copy the ID from the output and update wrangler.jsonc
 ```
@@ -109,7 +109,7 @@ src/
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `GITHUB_PAT` | GitHub Personal Access Token for higher rate limits | No (but recommended) |
-| `GITHUB_EVENTS_CACHE` | Cloudflare KV namespace for caching | Yes (auto-configured) |
+| `GHACTIVITY_KV` | Cloudflare KV namespace for caching | Yes (auto-configured) |
 
 ## API Rate Limits
 
