@@ -17,7 +17,16 @@
 	},
 	"observability": {
 		"enabled": true
-	}
+	},
+
+	// KV namespace for GitHub Events caching
+	"kv_namespaces": [
+		{
+			"binding": "GITHUB_EVENTS_CACHE",
+			"id": "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+		}
+	]
+
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

@@ -24,3 +24,6 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* helpers */
+.link { text-decoration: underline; text-underline-offset: 2px; }
