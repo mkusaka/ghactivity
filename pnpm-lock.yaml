@@ -29,11 +29,17 @@ dependencies:
   react-dom:
     specifier: ^19.0.0
     version: 19.1.1(react@19.1.1)
+  zod:
+    specifier: ^4.0.17
+    version: 4.0.17
 
 devDependencies:
   '@eslint/eslintrc':
     specifier: ^3
     version: 3.3.1
+  '@octokit/openapi-types':
+    specifier: ^25.1.0
+    version: 25.1.0
   '@tailwindcss/postcss':
     specifier: ^4
     version: 4.1.11
@@ -2394,7 +2400,6 @@ packages:
 
   /@octokit/openapi-types@25.1.0:
     resolution: {integrity: sha512-idsIggNXUKkk0+BExUn1dQ92sfysJrje03Q0bv0e+KPLrvyqZF8MnBpFz8UNfYDwB3Ie7Z0TByjWfzxt7vseaA==}
-    dev: false
 
   /@octokit/plugin-paginate-rest@13.1.1(@octokit/core@7.0.3):
     resolution: {integrity: sha512-q9iQGlZlxAVNRN2jDNskJW/Cafy7/XE52wjZ5TTvyhyOD904Cvx//DNyoO3J/MXJ0ve3rPoNWKEg5iZrisQSuw==}
@@ -7482,3 +7487,7 @@ packages:
 
   /zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
+
+  /zod@4.0.17:
+    resolution: {integrity: sha512-1PHjlYRevNxxdy2JZ8JcNAw7rX8V9P1AKkP+x/xZfxB0K5FYfuV+Ug6P/6NVSR2jHQ+FzDDoDHS04nYUsOIyLQ==}
+    dev: false
