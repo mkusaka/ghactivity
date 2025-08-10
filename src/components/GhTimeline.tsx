@@ -11,10 +11,7 @@ import {
 import { getEventsAction } from "@/app/[user]/actions";
 import type { GithubEvent } from "@/app/[user]/shared";
 
-// Due to limitations in Octokit types, payload properties aren't properly narrowed
-// based on event type. We need to access them with @ts-expect-error comments.
-// This is a known issue: the payload is a union type but doesn't narrow correctly
-// when checking event.type
+type Commit = { sha: string; message: string };
 
 function fmtRel(iso: string) {
   const d = new Date(iso);
@@ -42,7 +39,7 @@ function eventIconAndText(ev: GithubEvent) {
 
   if (ev.type === "PushEvent") {
     // @ts-expect-error - Octokit types don't narrow payload based on event type
-    const commits = payload.commits || [];
+    const commits: Commit[] = payload.commits || [];
     const count = commits.length;
     // @ts-expect-error
     const ref = payload.ref;
@@ -57,7 +54,7 @@ function eventIconAndText(ev: GithubEvent) {
           </a>
         </span>
       ),
-      extra: commits.map((c: { sha: string; message: string }) => ({ sha: c.sha, msg: c.message })),
+      extra: commits.map(c => ({ sha: c.sha, msg: c.message })),
     };
   }
   
@@ -413,7 +410,7 @@ function TimelineItem({ ev, compact }: { ev: GithubEvent; compact: boolean }) {
   const [open, setOpen] = useState(false);
   const payload = ev.payload;
   // @ts-expect-error
-  const commits = ev.type === "PushEvent" ? (payload.commits || []) : [];
+  const commits: Commit[] = ev.type === "PushEvent" ? (payload.commits || []) : [];
 
   return (
     <li className="mb-6">
@@ -438,7 +435,7 @@ function TimelineItem({ ev, compact }: { ev: GithubEvent; compact: boolean }) {
               {open && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
                   <ul className="mt-2 space-y-1 text-xs">
-                    {commits.map((c: { sha: string; message: string }) => (
+                    {commits.map(c => (
                       <li key={c.sha} className="rounded-lg p-2 bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800">
                         <a 
                           href={`https://github.com/${ev.repo?.name}/commit/${c.sha}`} 
