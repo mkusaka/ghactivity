@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GitHub Activity Viewer
+
+A real-time GitHub activity timeline viewer built with Next.js and Cloudflare Workers.
+
+## Features
+
+- 📊 Real-time GitHub activity timeline
+- 🚀 Server-side rendering with dynamic metadata
+- 💾 ETag-based caching with Cloudflare KV
+- 🔒 Secure server actions (no public API exposure)
+- 🎨 Beautiful UI with Tailwind CSS v4
+- 📱 Responsive design
+- 🔄 Auto-refresh with configurable intervals
+- 📥 Export events as JSON
+- 🎯 Event type filtering
+- ♾️ Infinite scroll (up to 300 events due to GitHub API limits)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+
+- pnpm (or npm/yarn)
+- Cloudflare account (for deployment)
+- GitHub Personal Access Token (optional, for higher rate limits)
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/mkusaka/ghactivity.git
+cd ghactivity
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up GitHub Personal Access Token (recommended):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+GitHub API has rate limits: 60 requests/hour without authentication, 5000 with authentication.
 
-## Learn More
+```bash
+# Copy the example file
+cp .dev.vars.example .dev.vars
 
-To learn more about Next.js, take a look at the following resources:
+# Edit .dev.vars and add your GitHub PAT
+# GITHUB_PAT=ghp_your_token_here
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To create a GitHub Personal Access Token:
+1. Go to https://github.com/settings/tokens
+2. Click "Generate new token (classic)"
+3. Give it a name and select `public_repo` scope
+4. Copy the token and add it to `.dev.vars`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Run the development server:
+```bash
+pnpm dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deployment to Cloudflare Workers
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 1. Create KV Namespace
+
+```bash
+# Create a KV namespace for caching
+wrangler kv:namespace create GHACTIVITY_KV
+
+# Copy the ID from the output and update wrangler.jsonc
+```
+
+### 2. Set up Secrets (Production)
+
+```bash
+# Add your GitHub PAT as a secret (optional but recommended)
+wrangler secret put GITHUB_PAT
+```
+
+### 3. Deploy
+
+```bash
+# Deploy to Cloudflare Workers
+pnpm deploy
+```
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── [user]/
+│   │   ├── page.tsx          # User activity page
+│   │   ├── actions.ts        # Server actions
+│   │   ├── shared.ts         # Shared utilities
+│   │   ├── error.tsx         # Error boundary
+│   │   └── opengraph-image.tsx # OG image generation
+│   ├── page.tsx              # Home page
+│   ├── layout.tsx            # Root layout
+│   └── globals.css           # Global styles
+└── components/
+    └── GhTimeline.tsx        # Timeline component
+```
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `GITHUB_PAT` | GitHub Personal Access Token for higher rate limits | No (but recommended) |
+| `GHACTIVITY_KV` | Cloudflare KV namespace for caching | Yes (auto-configured) |
+
+## API Rate Limits
+
+- **Without authentication**: 60 requests/hour
+- **With authentication**: 5,000 requests/hour
+- **With GitHub App**: 5,000-15,000 requests/hour
+- **Pagination limit**: Maximum 3 pages × 100 events per page (300 events total)
+
+The app uses ETag caching to minimize API calls and falls back to cached data when rate limited.
+
+**Note**: GitHub's Events API limits to a maximum of 300 events. The app fetches 100 events per page for efficiency, requiring only 3 API calls to retrieve all available events.
+
+## Technologies Used
+
+- [Next.js](https://nextjs.org/) - React framework
+- [Cloudflare Workers](https://workers.cloudflare.com/) - Edge computing platform
+- [Tailwind CSS v4](https://tailwindcss.com/) - Utility-first CSS framework
+- [Lucide React](https://lucide.dev/) - Icon library
+- [Framer Motion](https://www.framer.com/motion/) - Animation library
+
+## License
+
+MIT
