@@ -202,22 +202,27 @@ export default function GhTimeline({
   const loadMore = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;
     
-    // GitHub API limits to 300 events (3 pages × 100 events/page)
-    if (page >= 3) {
-      setHasMore(false);
-      return;
-    }
-    
     setIsLoadingMore(true);
     try {
       const nextPage = page + 1;
+      // GitHub API limits to 300 events (3 pages × 100 events/page)
+      if (nextPage > 3) {
+        setHasMore(false);
+        setIsLoadingMore(false);
+        return;
+      }
+      
       const { events: newEvents } = await getEventsAction(user, nextPage);
       
-      if (newEvents.length === 0 || nextPage >= 3) {
+      if (newEvents.length === 0) {
         setHasMore(false);
       } else {
         setEvents(prev => [...prev, ...newEvents]);
         setPage(nextPage);
+        // After loading page 3, no more pages available
+        if (nextPage === 3) {
+          setHasMore(false);
+        }
       }
     } catch (e) {
       console.error('Failed to load more events:', e);

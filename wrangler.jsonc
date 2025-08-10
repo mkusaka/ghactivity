@@ -5,6 +5,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "ghactivity",
+	"account_id": "7329283460e5efe7b1e75190a87dfdd4",
 	"main": ".open-next/worker.js",
 	"compatibility_date": "2025-03-01",
 	"compatibility_flags": [
@@ -23,7 +24,7 @@
 	"kv_namespaces": [
 		{
 			"binding": "GHACTIVITY_KV",
-			"id": "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+			"id": "0d3b78c7dbc147a6846e786fc6c1384f"
 		}
 	]
 
