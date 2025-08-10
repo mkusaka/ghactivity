@@ -129,7 +129,7 @@ function eventIconAndText(ev: GithubEvent) {
       color: "bg-teal-500/15 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400", 
       title: refName ? (
         <>
-          created {refType} "<a className="link" href={refUrl} target="_blank" rel="noreferrer">{refName}</a>"
+          created {refType} &quot;<a className="link" href={refUrl} target="_blank" rel="noreferrer">{refName}</a>&quot;
         </>
       ) : `created ${refType}`, 
       desc: (
