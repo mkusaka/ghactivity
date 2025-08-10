@@ -6,8 +6,8 @@ import { fetchEventsWithEnv } from "./shared";
 
 /**
  * Server Action:
- * - 外部にAPIを晒さない
- * - Cloudflareの env（KV/Secrets）にここだけで触る
+ * - No external API exposure
+ * - Cloudflare env (KV/Secrets) access only from here
  */
 export async function getEventsAction(user: string) {
   const { env } = getCloudflareContext();

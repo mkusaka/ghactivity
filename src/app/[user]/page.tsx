@@ -21,7 +21,7 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ user: string }> }): Promise<Metadata> {
-  // メタ用に軽量ヒット（同一関数を再利用）
+  // Lightweight fetch for metadata (reusing the same function)
   const { user } = await params;
   const { env } = getCloudflareContext();
   const { events } = await fetchEventsWithEnv(env as any, user);

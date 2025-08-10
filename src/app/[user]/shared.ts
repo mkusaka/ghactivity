@@ -46,8 +46,8 @@ export async function fetchEventsWithEnv(
 
     // Cache the new data
     if (kv) {
-      if (etag) await kv.put(etagKey, etag, { expirationTtl: 60 * 30 }); // 30分
-      await kv.put(listKey, JSON.stringify(events), { expirationTtl: 60 * 5 }); // 5分
+      if (etag) await kv.put(etagKey, etag, { expirationTtl: 60 * 30 }); // 30 minutes
+      await kv.put(listKey, JSON.stringify(events), { expirationTtl: 60 * 5 }); // 5 minutes
     }
 
     return {

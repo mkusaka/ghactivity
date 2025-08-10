@@ -209,7 +209,7 @@ export default function GhTimeline({
 
   return (
     <div className="mx-auto max-w-5xl w-full">
-      {/* ヘッダ：ボタン類は不透明白＋ring */}
+      {/* Header: buttons with opaque white + ring */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">{user} — Recent GitHub Activity</h1>
@@ -238,7 +238,7 @@ export default function GhTimeline({
         </div>
       </header>
 
-      {/* サマリカード：不透明白＋ring */}
+      {/* Summary cards: opaque white + ring */}
       <section className="mt-6 grid gap-3 sm:grid-cols-3">
         <Stat label="Commits" value={counters.commits} icon={<GitCommit className="w-4 h-4" />} />
         <Stat label="PRs (opened/merged)" value={`${counters.prsOpened}/${counters.prsMerged}`} icon={<GitPullRequest className="w-4 h-4" />} />
@@ -249,7 +249,7 @@ export default function GhTimeline({
         <Stat label="Releases" value={counters.releases} icon={<Tag className="w-4 h-4" />} />
       </section>
 
-      {/* フィルタカード：不透明白＋ring */}
+      {/* Filter card: opaque white + ring */}
       <section className="mt-6 p-4 rounded-2xl bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -263,7 +263,7 @@ export default function GhTimeline({
         </div>
       </section>
 
-      {/* タイムライン本体 */}
+      {/* Timeline main content */}
       <section className="mt-6">
         {Object.keys(grouped).length === 0 && (
           <div className="text-slate-500 dark:text-slate-400 text-sm">No events.</div>

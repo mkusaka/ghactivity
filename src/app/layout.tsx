@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "GitHub Recent Activity",
   description: "Timeline view of a user's recent GitHub events.",
-  metadataBase: new URL("https://example.com"), // ← デプロイ先に合わせて後で変更
+  metadataBase: new URL("https://example.com"), // Update this with your deployment URL
 };
 
 export default function RootLayout({
