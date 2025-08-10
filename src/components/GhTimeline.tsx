@@ -6,14 +6,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
   MessageSquare, GitBranch, GitMerge, Trash2, Users, Eye, Clock,
-  RefreshCw, ChevronDown, ChevronRight, Filter, Link2, AlertTriangle, Download, Copy
+  RefreshCw, ChevronDown, ChevronRight, Filter, Link2, AlertTriangle, Download, Copy,
+  Unlock, BookOpen, MessageCircle
 } from "lucide-react";
 import { getEventsAction } from "@/app/[user]/actions";
 import type { GithubEvent } from "@/app/[user]/shared";
 import { 
   isPushEvent, isPullRequestEvent, isIssuesEvent, isIssueCommentEvent,
   isPullRequestReviewEvent, isReleaseEvent, isForkEvent, isWatchEvent,
-  isCreateEvent, isDeleteEvent, isMemberEvent
+  isCreateEvent, isDeleteEvent, isMemberEvent, isPublicEvent,
+  isCommitCommentEvent, isGollumEvent, isPullRequestReviewCommentEvent,
+  isPullRequestReviewThreadEvent
 } from "@/lib/github-events-schema";
 
 function fmtRel(iso: string) {
@@ -31,8 +34,9 @@ function fmtRel(iso: string) {
 
 const TYPE_LABELS = [
   "PushEvent", "PullRequestEvent", "IssuesEvent", "IssueCommentEvent",
-  "PullRequestReviewEvent", "ReleaseEvent", "ForkEvent", "WatchEvent",
-  "CreateEvent", "DeleteEvent", "MemberEvent",
+  "PullRequestReviewEvent", "PullRequestReviewCommentEvent", "PullRequestReviewThreadEvent",
+  "ReleaseEvent", "ForkEvent", "WatchEvent", "CreateEvent", "DeleteEvent", 
+  "PublicEvent", "MemberEvent", "CommitCommentEvent", "GollumEvent",
 ] as const;
 
 function eventIconAndText(ev: GithubEvent) {
@@ -143,6 +147,29 @@ function eventIconAndText(ev: GithubEvent) {
       title: `deleted ${refType}${refName ? ` "${refName}"` : ""}`, 
       desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) 
     };
+  }
+  
+  if (isPublicEvent(ev)) {
+    return { icon: <Unlock className="w-4 h-4" />, color: "bg-green-500/15 text-green-600 dark:bg-green-500/20 dark:text-green-400", title: "made repository public", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+  }
+  
+  if (isCommitCommentEvent(ev)) {
+    return { icon: <MessageCircle className="w-4 h-4" />, color: "bg-violet-500/15 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400", title: "commented on a commit", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+  }
+  
+  if (isGollumEvent(ev)) {
+    const pages = ev.payload.pages || [];
+    const pageCount = pages.length;
+    return { icon: <BookOpen className="w-4 h-4" />, color: "bg-orange-500/15 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400", title: `updated ${pageCount} wiki page${pageCount !== 1 ? 's' : ''}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+  }
+  
+  if (isPullRequestReviewCommentEvent(ev)) {
+    return { icon: <MessageCircle className="w-4 h-4" />, color: "bg-pink-500/15 text-pink-600 dark:bg-pink-500/20 dark:text-pink-400", title: "commented on PR review", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+  }
+  
+  if (isPullRequestReviewThreadEvent(ev)) {
+    const action = ev.payload.action;
+    return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400", title: `${action} review thread`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
   
   if (isMemberEvent(ev)) {
