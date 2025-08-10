@@ -10,8 +10,11 @@ import {
 } from "lucide-react";
 import { getEventsAction } from "@/app/[user]/actions";
 import type { GithubEvent } from "@/app/[user]/shared";
-
-type Commit = { sha: string; message: string };
+import { 
+  isPushEvent, isPullRequestEvent, isIssuesEvent, isIssueCommentEvent,
+  isPullRequestReviewEvent, isReleaseEvent, isForkEvent, isWatchEvent,
+  isCreateEvent, isDeleteEvent, isMemberEvent
+} from "@/lib/github-events-schema";
 
 function fmtRel(iso: string) {
   const d = new Date(iso);
@@ -35,14 +38,11 @@ const TYPE_LABELS = [
 function eventIconAndText(ev: GithubEvent) {
   const repo = ev.repo?.name;
   const urlRepo = `https://github.com/${repo}`;
-  const payload = ev.payload;
 
-  if (ev.type === "PushEvent") {
-    // @ts-expect-error - Octokit types don't narrow payload based on event type
-    const commits: Commit[] = payload.commits || [];
+  if (isPushEvent(ev)) {
+    const commits = ev.payload.commits || [];
     const count = commits.length;
-    // @ts-expect-error
-    const ref = payload.ref;
+    const ref = ev.payload.ref;
     const branch = ref?.startsWith("refs/heads/") ? ref.replace("refs/heads/", "") : ref;
     return {
       icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400",
@@ -58,10 +58,9 @@ function eventIconAndText(ev: GithubEvent) {
     };
   }
   
-  if (ev.type === "PullRequestEvent") {
-    const action = payload.action;
-    // @ts-expect-error
-    const pr = payload.pull_request;
+  if (isPullRequestEvent(ev)) {
+    const action = ev.payload.action;
+    const pr = ev.payload.pull_request;
     const merged = pr?.merged;
     const title = merged ? "merged a pull request" : `${action} a pull request`;
     return {
@@ -76,9 +75,9 @@ function eventIconAndText(ev: GithubEvent) {
     };
   }
   
-  if (ev.type === "IssuesEvent") {
-    const issue = payload.issue;
-    const action = payload.action;
+  if (isIssuesEvent(ev)) {
+    const issue = ev.payload.issue;
+    const action = ev.payload.action;
     return {
       icon: <AlertTriangle className="w-4 h-4" />,
       color: action === "opened" ? "bg-rose-500/15 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400" : "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400",
@@ -91,35 +90,31 @@ function eventIconAndText(ev: GithubEvent) {
     };
   }
   
-  if (ev.type === "IssueCommentEvent") {
+  if (isIssueCommentEvent(ev)) {
     return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-sky-500/15 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400", title: "commented on an issue", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
   
-  if (ev.type === "PullRequestReviewEvent") {
-    // @ts-expect-error
-    const reviewState = payload.review?.state;
+  if (isPullRequestReviewEvent(ev)) {
+    const reviewState = ev.payload.review?.state;
     return { icon: <Eye className="w-4 h-4" />, color: "bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400", title: `reviewed a pull request${reviewState ? ` (${String(reviewState).toLowerCase()})` : ""}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
   
-  if (ev.type === "ReleaseEvent") {
-    // @ts-expect-error
-    const tagName = payload.release?.tag_name;
+  if (isReleaseEvent(ev)) {
+    const tagName = ev.payload.release?.tag_name;
     return { icon: <Tag className="w-4 h-4" />, color: "bg-fuchsia-500/15 text-fuchsia-600 dark:bg-fuchsia-500/20 dark:text-fuchsia-400", title: "published a release", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — {tagName}</span>) };
   }
   
-  if (ev.type === "ForkEvent") {
+  if (isForkEvent(ev)) {
     return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
   
-  if (ev.type === "WatchEvent") {
+  if (isWatchEvent(ev)) {
     return { icon: <Star className="w-4 h-4" />, color: "bg-yellow-500/15 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400", title: "starred a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
   
-  if (ev.type === "CreateEvent") {
-    // @ts-expect-error
-    const refType = payload.ref_type;
-    // @ts-expect-error
-    const refName = payload.ref;
+  if (isCreateEvent(ev)) {
+    const refType = ev.payload.ref_type;
+    const refName = ev.payload.ref;
     const refUrl = refType === "branch" 
       ? `${urlRepo}/tree/${refName}`
       : refType === "tag"
@@ -139,11 +134,9 @@ function eventIconAndText(ev: GithubEvent) {
     };
   }
   
-  if (ev.type === "DeleteEvent") {
-    // @ts-expect-error
-    const refType = payload.ref_type;
-    // @ts-expect-error
-    const refName = payload.ref;
+  if (isDeleteEvent(ev)) {
+    const refType = ev.payload.ref_type;
+    const refName = ev.payload.ref;
     return { 
       icon: <Trash2 className="w-4 h-4" />, 
       color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400", 
@@ -152,7 +145,7 @@ function eventIconAndText(ev: GithubEvent) {
     };
   }
   
-  if (ev.type === "MemberEvent") {
+  if (isMemberEvent(ev)) {
     return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
   
@@ -198,33 +191,30 @@ export default function GhTimeline({
   const counters = useMemo(() => {
     const c = { commits: 0, prsOpened: 0, prsMerged: 0, issuesOpened: 0, issuesClosed: 0, reviews: 0, stars: 0, forks: 0, releases: 0 };
     for (const e of events) {
-      const payload = e.payload;
-      if (e.type === "PushEvent") {
-        // @ts-expect-error
-        c.commits += payload.commits?.length || 0;
-      } else if (e.type === "PullRequestEvent") {
-        // @ts-expect-error
-        const pr = payload.pull_request;
-        const action = payload.action;
+      if (isPushEvent(e)) {
+        c.commits += e.payload.commits?.length || 0;
+      } else if (isPullRequestEvent(e)) {
+        const pr = e.payload.pull_request;
+        const action = e.payload.action;
         if (pr?.merged) {
           c.prsMerged++;
         } else if (action === "opened") {
           c.prsOpened++;
         }
-      } else if (e.type === "IssuesEvent") {
-        const action = payload.action;
+      } else if (isIssuesEvent(e)) {
+        const action = e.payload.action;
         if (action === "opened") {
           c.issuesOpened++;
         } else if (action === "closed") {
           c.issuesClosed++;
         }
-      } else if (e.type === "PullRequestReviewEvent") {
+      } else if (isPullRequestReviewEvent(e)) {
         c.reviews++;
-      } else if (e.type === "WatchEvent") {
+      } else if (isWatchEvent(e)) {
         c.stars++;
-      } else if (e.type === "ForkEvent") {
+      } else if (isForkEvent(e)) {
         c.forks++;
-      } else if (e.type === "ReleaseEvent") {
+      } else if (isReleaseEvent(e)) {
         c.releases++;
       }
     }
