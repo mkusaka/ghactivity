@@ -1,9 +1,9 @@
 // src/app/[user]/shared.ts
 import { Octokit } from "@octokit/rest";
-import type { RestEndpointMethodTypes } from "@octokit/types";
+import type { Endpoints } from "@octokit/types";
 
 // GitHub API Event types
-export type GithubEvent = RestEndpointMethodTypes["activity"]["listPublicEventsForUser"]["response"]["data"][number];
+export type GithubEvent = Endpoints["GET /users/{username}/events/public"]["response"]["data"][number];
 
 export type EventsResult = {
   events: GithubEvent[];
@@ -42,7 +42,7 @@ export async function fetchEventsWithEnv(
     const events = response.data;
     const etag = response.headers.etag;
     const pollInterval = response.headers["x-poll-interval"] ? 
-      parseInt(response.headers["x-poll-interval"]) : undefined;
+      parseInt(String(response.headers["x-poll-interval"])) : undefined;
 
     // Cache the new data
     if (kv) {
@@ -93,7 +93,7 @@ export async function fetchEventsWithEnv(
         const events = freshResponse.data;
         const etag = freshResponse.headers.etag;
         const pollInterval = freshResponse.headers["x-poll-interval"] ? 
-          parseInt(freshResponse.headers["x-poll-interval"]) : undefined;
+          parseInt(String(freshResponse.headers["x-poll-interval"])) : undefined;
         
         if (kv) {
           if (etag) await kv.put(etagKey, etag, { expirationTtl: 60 * 30 });

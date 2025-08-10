@@ -11,6 +11,11 @@ import {
 import { getEventsAction } from "@/app/[user]/actions";
 import type { GithubEvent } from "@/app/[user]/shared";
 
+// Due to limitations in Octokit types, payload properties aren't properly narrowed
+// based on event type. We need to access them with @ts-expect-error comments.
+// This is a known issue: the payload is a union type but doesn't narrow correctly
+// when checking event.type
+
 function fmtRel(iso: string) {
   const d = new Date(iso);
   const diff = Date.now() - d.getTime();
@@ -33,102 +38,129 @@ const TYPE_LABELS = [
 function eventIconAndText(ev: GithubEvent) {
   const repo = ev.repo?.name;
   const urlRepo = `https://github.com/${repo}`;
-  const pr = ev.payload?.pull_request;
-  const issue = ev.payload?.issue;
-  const ref = ev.payload?.ref;
-  const branch = ref?.startsWith("refs/heads/") ? ref.replace("refs/heads/", "") : ref;
+  const payload = ev.payload;
 
-  switch (ev.type) {
-    case "PushEvent": {
-      const commits = ev.payload?.commits || [];
-      const count = commits.length;
-      return {
-        icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400",
-        title: `pushed ${count} commit${count !== 1 ? "s" : ""}`,
-        desc: (
-          <span>
-            to <a className="link" href={`${urlRepo}/tree/${branch || "main"}`} target="_blank" rel="noreferrer">
-              {repo}{branch ? `@${branch}` : ""}
-            </a>
-          </span>
-        ),
-        extra: commits.map((c) => ({ sha: c.sha, msg: c.message })),
-      };
-    }
-    case "PullRequestEvent": {
-      const action = ev.payload?.action;
-      const merged = pr?.merged;
-      const title = merged ? "merged a pull request" : `${action} a pull request`;
-      return {
-        icon: merged ? <GitMerge className="w-4 h-4" /> : <GitPullRequest className="w-4 h-4" />,
-        color: merged ? "bg-purple-500/15 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400" : "bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
-        title,
-        desc: (
-          <span>
-            in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={pr?.html_url} target="_blank" rel="noreferrer">#{pr?.number}</a> {pr?.title ? `: ${pr.title}` : ""}
-          </span>
-        ),
-      };
-    }
-    case "IssuesEvent": {
-      const action = ev.payload?.action;
-      return {
-        icon: <AlertTriangle className="w-4 h-4" />,
-        color: action === "opened" ? "bg-rose-500/15 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400" : "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400",
-        title: `${action} an issue`,
-        desc: (
-          <span>
-            in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={issue?.html_url} target="_blank" rel="noreferrer">#{issue?.number}</a> {issue?.title ? `: ${issue.title}` : ""}
-          </span>
-        ),
-      };
-    }
-    case "IssueCommentEvent":
-      return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-sky-500/15 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400", title: "commented on an issue", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
-    case "PullRequestReviewEvent":
-      return { icon: <Eye className="w-4 h-4" />, color: "bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400", title: `reviewed a pull request${ev.payload?.review?.state ? ` (${String(ev.payload.review.state).toLowerCase()})` : ""}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
-    case "ReleaseEvent":
-      return { icon: <Tag className="w-4 h-4" />, color: "bg-fuchsia-500/15 text-fuchsia-600 dark:bg-fuchsia-500/20 dark:text-fuchsia-400", title: "published a release", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — {ev.payload?.release?.tag_name}</span>) };
-    case "ForkEvent":
-      return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
-    case "WatchEvent":
-      return { icon: <Star className="w-4 h-4" />, color: "bg-yellow-500/15 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400", title: "starred a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
-    case "CreateEvent": {
-      const refType = ev.payload?.ref_type;
-      const refName = ev.payload?.ref;
-      const refUrl = refType === "branch" 
-        ? `${urlRepo}/tree/${refName}`
-        : refType === "tag"
-        ? `${urlRepo}/releases/tag/${refName}`
-        : urlRepo;
-      return { 
-        icon: <GitBranch className="w-4 h-4" />, 
-        color: "bg-teal-500/15 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400", 
-        title: refName ? (
-          <>
-            created {refType} "<a className="link" href={refUrl} target="_blank" rel="noreferrer">{refName}</a>"
-          </>
-        ) : `created ${refType}`, 
-        desc: (
-          <span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>
-        ) 
-      };
-    }
-    case "DeleteEvent": {
-      const refType = ev.payload?.ref_type;
-      const refName = ev.payload?.ref;
-      return { 
-        icon: <Trash2 className="w-4 h-4" />, 
-        color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400", 
-        title: `deleted ${refType}${refName ? ` "${refName}"` : ""}`, 
-        desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) 
-      };
-    }
-    case "MemberEvent":
-      return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
-    default:
-      return { icon: <Link2 className="w-4 h-4" />, color: "bg-gray-500/10 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400", title: ev.type, desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+  if (ev.type === "PushEvent") {
+    // @ts-expect-error - Octokit types don't narrow payload based on event type
+    const commits = payload.commits || [];
+    const count = commits.length;
+    // @ts-expect-error
+    const ref = payload.ref;
+    const branch = ref?.startsWith("refs/heads/") ? ref.replace("refs/heads/", "") : ref;
+    return {
+      icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400",
+      title: `pushed ${count} commit${count !== 1 ? "s" : ""}`,
+      desc: (
+        <span>
+          to <a className="link" href={`${urlRepo}/tree/${branch || "main"}`} target="_blank" rel="noreferrer">
+            {repo}{branch ? `@${branch}` : ""}
+          </a>
+        </span>
+      ),
+      extra: commits.map((c: { sha: string; message: string }) => ({ sha: c.sha, msg: c.message })),
+    };
   }
+  
+  if (ev.type === "PullRequestEvent") {
+    const action = payload.action;
+    // @ts-expect-error
+    const pr = payload.pull_request;
+    const merged = pr?.merged;
+    const title = merged ? "merged a pull request" : `${action} a pull request`;
+    return {
+      icon: merged ? <GitMerge className="w-4 h-4" /> : <GitPullRequest className="w-4 h-4" />,
+      color: merged ? "bg-purple-500/15 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400" : "bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
+      title,
+      desc: (
+        <span>
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={pr?.html_url} target="_blank" rel="noreferrer">#{pr?.number}</a> {pr?.title ? `: ${pr.title}` : ""}
+        </span>
+      ),
+    };
+  }
+  
+  if (ev.type === "IssuesEvent") {
+    const issue = payload.issue;
+    const action = payload.action;
+    return {
+      icon: <AlertTriangle className="w-4 h-4" />,
+      color: action === "opened" ? "bg-rose-500/15 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400" : "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400",
+      title: `${action} an issue`,
+      desc: (
+        <span>
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={issue?.html_url} target="_blank" rel="noreferrer">#{issue?.number}</a> {issue?.title ? `: ${issue.title}` : ""}
+        </span>
+      ),
+    };
+  }
+  
+  if (ev.type === "IssueCommentEvent") {
+    return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-sky-500/15 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400", title: "commented on an issue", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+  }
+  
+  if (ev.type === "PullRequestReviewEvent") {
+    // @ts-expect-error
+    const reviewState = payload.review?.state;
+    return { icon: <Eye className="w-4 h-4" />, color: "bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400", title: `reviewed a pull request${reviewState ? ` (${String(reviewState).toLowerCase()})` : ""}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+  }
+  
+  if (ev.type === "ReleaseEvent") {
+    // @ts-expect-error
+    const tagName = payload.release?.tag_name;
+    return { icon: <Tag className="w-4 h-4" />, color: "bg-fuchsia-500/15 text-fuchsia-600 dark:bg-fuchsia-500/20 dark:text-fuchsia-400", title: "published a release", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — {tagName}</span>) };
+  }
+  
+  if (ev.type === "ForkEvent") {
+    return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+  }
+  
+  if (ev.type === "WatchEvent") {
+    return { icon: <Star className="w-4 h-4" />, color: "bg-yellow-500/15 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400", title: "starred a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+  }
+  
+  if (ev.type === "CreateEvent") {
+    // @ts-expect-error
+    const refType = payload.ref_type;
+    // @ts-expect-error
+    const refName = payload.ref;
+    const refUrl = refType === "branch" 
+      ? `${urlRepo}/tree/${refName}`
+      : refType === "tag"
+      ? `${urlRepo}/releases/tag/${refName}`
+      : urlRepo;
+    return { 
+      icon: <GitBranch className="w-4 h-4" />, 
+      color: "bg-teal-500/15 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400", 
+      title: refName ? (
+        <>
+          created {refType} "<a className="link" href={refUrl} target="_blank" rel="noreferrer">{refName}</a>"
+        </>
+      ) : `created ${refType}`, 
+      desc: (
+        <span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>
+      ) 
+    };
+  }
+  
+  if (ev.type === "DeleteEvent") {
+    // @ts-expect-error
+    const refType = payload.ref_type;
+    // @ts-expect-error
+    const refName = payload.ref;
+    return { 
+      icon: <Trash2 className="w-4 h-4" />, 
+      color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400", 
+      title: `deleted ${refType}${refName ? ` "${refName}"` : ""}`, 
+      desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) 
+    };
+  }
+  
+  if (ev.type === "MemberEvent") {
+    return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+  }
+  
+  // Default case
+  return { icon: <Link2 className="w-4 h-4" />, color: "bg-gray-500/10 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400", title: ev.type || "Unknown", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
 }
 
 export default function GhTimeline({
@@ -159,6 +191,7 @@ export default function GhTimeline({
   const grouped = useMemo(() => {
     const g: Record<string, GithubEvent[]> = {};
     for (const e of events) {
+      if (!e.created_at) continue;
       const k = new Date(e.created_at).toDateString();
       (g[k] ||= []).push(e);
     }
@@ -168,20 +201,40 @@ export default function GhTimeline({
   const counters = useMemo(() => {
     const c = { commits: 0, prsOpened: 0, prsMerged: 0, issuesOpened: 0, issuesClosed: 0, reviews: 0, stars: 0, forks: 0, releases: 0 };
     for (const e of events) {
-      switch (e.type) {
-        case "PushEvent": c.commits += e.payload?.commits?.length || 0; break;
-        case "PullRequestEvent": if (e.payload?.pull_request?.merged) c.prsMerged++; else if (e.payload?.action === "opened") c.prsOpened++; break;
-        case "IssuesEvent": if (e.payload?.action === "opened") c.issuesOpened++; else if (e.payload?.action === "closed") c.issuesClosed++; break;
-        case "PullRequestReviewEvent": c.reviews++; break;
-        case "WatchEvent": c.stars++; break;
-        case "ForkEvent": c.forks++; break;
-        case "ReleaseEvent": c.releases++; break;
+      const payload = e.payload;
+      if (e.type === "PushEvent") {
+        // @ts-expect-error
+        c.commits += payload.commits?.length || 0;
+      } else if (e.type === "PullRequestEvent") {
+        // @ts-expect-error
+        const pr = payload.pull_request;
+        const action = payload.action;
+        if (pr?.merged) {
+          c.prsMerged++;
+        } else if (action === "opened") {
+          c.prsOpened++;
+        }
+      } else if (e.type === "IssuesEvent") {
+        const action = payload.action;
+        if (action === "opened") {
+          c.issuesOpened++;
+        } else if (action === "closed") {
+          c.issuesClosed++;
+        }
+      } else if (e.type === "PullRequestReviewEvent") {
+        c.reviews++;
+      } else if (e.type === "WatchEvent") {
+        c.stars++;
+      } else if (e.type === "ForkEvent") {
+        c.forks++;
+      } else if (e.type === "ReleaseEvent") {
+        c.releases++;
       }
     }
     return c;
   }, [events]);
 
-  const filtered = useMemo(() => (allowed.size === 0 ? events : events.filter(e => allowed.has(e.type))), [events, allowed]);
+  const filtered = useMemo(() => (allowed.size === 0 ? events : events.filter(e => e.type && allowed.has(e.type))), [events, allowed]);
 
   const onRefresh = async () => {
     try {
@@ -271,7 +324,11 @@ export default function GhTimeline({
 
         <div className="space-y-8">
           {Object.entries(grouped)
-            .sort((a, b) => new Date(b[0]).valueOf() - new Date(a[0]).valueOf())
+            .sort((a, b) => {
+              const dateA = new Date(a[0]);
+              const dateB = new Date(b[0]);
+              return dateB.valueOf() - dateA.valueOf();
+            })
             .map(([day, items]) => (
             <div key={day}>
               <div className="sticky top-0 z-10 py-1 backdrop-blur bg-slate-50/90 dark:bg-slate-900/90">
@@ -279,7 +336,10 @@ export default function GhTimeline({
               </div>
               <ol className="relative ml-3 border-l border-slate-200 dark:border-slate-700 pl-6">
                 {items
-                  .sort((a, b) => new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf())
+                  .sort((a, b) => {
+                    if (!a.created_at || !b.created_at) return 0;
+                    return new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf();
+                  })
                   .map((ev) => (
                   <TimelineItem key={ev.id} ev={ev} compact={compact} />
                 ))}
@@ -351,18 +411,20 @@ function FilterPillBar({
 function TimelineItem({ ev, compact }: { ev: GithubEvent; compact: boolean }) {
   const meta = eventIconAndText(ev);
   const [open, setOpen] = useState(false);
-  const commits = ev.type === "PushEvent" ? (ev.payload?.commits || []) : [];
+  const payload = ev.payload;
+  // @ts-expect-error
+  const commits = ev.type === "PushEvent" ? (payload.commits || []) : [];
 
   return (
     <li className="mb-6">
       <div className="absolute -left-[9px] mt-1 w-4 h-4 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${meta.color}`}>{meta.icon}<span>{ev.type.replace(/Event$/, "")}</span></span>
+          <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${meta.color}`}>{meta.icon}<span>{ev.type?.replace(/Event$/, "") || "Unknown"}</span></span>
           <span className="text-sm text-slate-900 dark:text-slate-100">{meta.title} {meta.desc}</span>
         </div>
         <div className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
-          <Clock className="w-3 h-3" /> {fmtRel(ev.created_at)}
+          <Clock className="w-3 h-3" /> {ev.created_at ? fmtRel(ev.created_at) : "Unknown"}
           <a className="link" href={`https://github.com/${ev.actor?.login}`} target="_blank" rel="noreferrer">@{ev.actor?.login}</a>
           <span className="text-slate-300 dark:text-slate-600">•</span> id: {ev.id}
         </div>
@@ -376,7 +438,7 @@ function TimelineItem({ ev, compact }: { ev: GithubEvent; compact: boolean }) {
               {open && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
                   <ul className="mt-2 space-y-1 text-xs">
-                    {commits.map((c) => (
+                    {commits.map((c: { sha: string; message: string }) => (
                       <li key={c.sha} className="rounded-lg p-2 bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800">
                         <a 
                           href={`https://github.com/${ev.repo?.name}/commit/${c.sha}`} 
