@@ -94,10 +94,38 @@ function eventIconAndText(ev: GhEvent) {
       return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
     case "WatchEvent":
       return { icon: <Star className="w-4 h-4" />, color: "bg-yellow-500/15 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400", title: "starred a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
-    case "CreateEvent":
-      return { icon: <GitBranch className="w-4 h-4" />, color: "bg-teal-500/15 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400", title: `created a ${ev.payload?.ref_type}`, desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
-    case "DeleteEvent":
-      return { icon: <Trash2 className="w-4 h-4" />, color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400", title: `deleted a ${ev.payload?.ref_type}`, desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+    case "CreateEvent": {
+      const refType = ev.payload?.ref_type;
+      const refName = ev.payload?.ref;
+      const refUrl = refType === "branch" 
+        ? `${urlRepo}/tree/${refName}`
+        : refType === "tag"
+        ? `${urlRepo}/releases/tag/${refName}`
+        : urlRepo;
+      return { 
+        icon: <GitBranch className="w-4 h-4" />, 
+        color: "bg-teal-500/15 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400", 
+        title: `created ${refType}${refName ? ` "${refName}"` : ""}`, 
+        desc: (
+          <span>
+            in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>
+            {refName && (
+              <> — <a className="link" href={refUrl} target="_blank" rel="noreferrer">View {refType}</a></>
+            )}
+          </span>
+        ) 
+      };
+    }
+    case "DeleteEvent": {
+      const refType = ev.payload?.ref_type;
+      const refName = ev.payload?.ref;
+      return { 
+        icon: <Trash2 className="w-4 h-4" />, 
+        color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400", 
+        title: `deleted ${refType}${refName ? ` "${refName}"` : ""}`, 
+        desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) 
+      };
+    }
     case "MemberEvent":
       return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
     default:
@@ -352,7 +380,14 @@ function TimelineItem({ ev, compact }: { ev: GhEvent; compact: boolean }) {
                   <ul className="mt-2 space-y-1 text-xs">
                     {commits.map((c: any) => (
                       <li key={c.sha} className="rounded-lg p-2 bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800">
-                        <code className="text-[11px] bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">{c.sha.slice(0, 7)}</code>
+                        <a 
+                          href={`https://github.com/${ev.repo?.name}/commit/${c.sha}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="text-[11px] bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-600"
+                        >
+                          {c.sha.slice(0, 7)}
+                        </a>
                         <span className="ml-2 whitespace-pre-wrap break-words">{c.message}</span>
                       </li>
                     ))}
