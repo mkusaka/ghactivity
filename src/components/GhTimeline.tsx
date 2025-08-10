@@ -105,14 +105,13 @@ function eventIconAndText(ev: GhEvent) {
       return { 
         icon: <GitBranch className="w-4 h-4" />, 
         color: "bg-teal-500/15 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400", 
-        title: `created ${refType}${refName ? ` "${refName}"` : ""}`, 
+        title: refName ? (
+          <>
+            created {refType} "<a className="link" href={refUrl} target="_blank" rel="noreferrer">{refName}</a>"
+          </>
+        ) : `created ${refType}`, 
         desc: (
-          <span>
-            in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>
-            {refName && (
-              <> — <a className="link" href={refUrl} target="_blank" rel="noreferrer">View {refType}</a></>
-            )}
-          </span>
+          <span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>
         ) 
       };
     }
