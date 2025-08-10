@@ -1,12 +1,12 @@
 // src/components/GhTimeline.tsx
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
   MessageSquare, GitBranch, GitMerge, Trash2, Users, Eye, Clock,
-  RefreshCw, ChevronDown, ChevronRight, Filter, Link2, AlertTriangle, Download, Copy,
+  RefreshCw, ChevronDown, ChevronRight, Link2, AlertTriangle, Download, Copy,
   Unlock, BookOpen, MessageCircle
 } from "lucide-react";
 import { getEventsAction } from "@/app/[user]/actions";
@@ -176,8 +176,8 @@ function eventIconAndText(ev: GithubEvent) {
     return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
   
-  // Default case
-  return { icon: <Link2 className="w-4 h-4" />, color: "bg-gray-500/10 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400", title: ev.type || "Unknown", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+  // Default case - should never happen with complete type coverage
+  return { icon: <Link2 className="w-4 h-4" />, color: "bg-gray-500/10 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400", title: (ev as GithubEvent).type || "Unknown", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
 }
 
 export default function GhTimeline({
@@ -191,37 +191,107 @@ export default function GhTimeline({
 }) {
   const [events, setEvents] = useState<GithubEvent[]>(initial);
   const [allowed, setAllowed] = useState<Set<string>>(new Set());
-  const [compact, setCompact] = useState(false);
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const observerTarget = useRef<HTMLDivElement>(null);
 
+  // Load more events (GitHub API limits to 300 events total)
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+    
+    // GitHub API limits to 300 events (3 pages × 100 events/page)
+    if (page >= 3) {
+      setHasMore(false);
+      return;
+    }
+    
+    setIsLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const { events: newEvents } = await getEventsAction(user, nextPage);
+      
+      if (newEvents.length === 0 || nextPage >= 3) {
+        setHasMore(false);
+      } else {
+        setEvents(prev => [...prev, ...newEvents]);
+        setPage(nextPage);
+      }
+    } catch (e) {
+      console.error('Failed to load more events:', e);
+      // If we hit the pagination limit, stop trying to load more
+      if (e instanceof Error && e.message.includes('pagination is limited')) {
+        setHasMore(false);
+      }
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [user, page, isLoadingMore, hasMore]);
+
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && !isLoadingMore && hasMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [loadMore, isLoadingMore, hasMore]);
+
+  // Auto-refresh first page only (preserves loaded pages)
   useEffect(() => {
     const t = setInterval(() => {
       startTransition(async () => {
         try {
-          const { events } = await getEventsAction(user);
-          setEvents(events);
+          const { events: newEvents } = await getEventsAction(user, 1);
+          // Update only the first 100 events to preserve pagination
+          setEvents(prev => {
+            if (page === 1) {
+              // If only showing first page, replace all
+              return newEvents;
+            } else {
+              // If showing multiple pages, update first 100 and keep the rest
+              return [...newEvents, ...prev.slice(100)];
+            }
+          });
         } catch {
           // Silent fail for background refresh
         }
       });
     }, Math.max(15, pollSec) * 1000);
     return () => clearInterval(t);
-  }, [user, pollSec]);
+  }, [user, pollSec, page]);
+
+  const filtered = useMemo(() => (allowed.size === 0 ? events : events.filter(e => e.type && allowed.has(e.type))), [events, allowed]);
 
   const grouped = useMemo(() => {
     const g: Record<string, GithubEvent[]> = {};
-    for (const e of events) {
+    for (const e of filtered) {
       if (!e.created_at) continue;
       const k = new Date(e.created_at).toDateString();
       (g[k] ||= []).push(e);
     }
     return g;
-  }, [events]);
+  }, [filtered]);
 
   const counters = useMemo(() => {
     const c = { commits: 0, prsOpened: 0, prsMerged: 0, issuesOpened: 0, issuesClosed: 0, reviews: 0, stars: 0, forks: 0, releases: 0 };
-    for (const e of events) {
+    for (const e of filtered) {
       if (isPushEvent(e)) {
         c.commits += e.payload.commits?.length || 0;
       } else if (isPullRequestEvent(e)) {
@@ -250,16 +320,16 @@ export default function GhTimeline({
       }
     }
     return c;
-  }, [events]);
-
-  const filtered = useMemo(() => (allowed.size === 0 ? events : events.filter(e => e.type && allowed.has(e.type))), [events, allowed]);
+  }, [filtered]);
 
   const onRefresh = () => {
     startTransition(async () => {
       try {
         setError("");
-        const { events } = await getEventsAction(user);
+        const { events } = await getEventsAction(user, 1);
         setEvents(events);
+        setPage(1);
+        setHasMore(true);
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e));
       }
@@ -329,13 +399,7 @@ export default function GhTimeline({
       {/* Filter card: opaque white + ring */}
       <section className="mt-6 p-4 rounded-2xl bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <label className="inline-flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
-              <input type="checkbox" checked={compact} onChange={e => setCompact(e.target.checked)} />
-              Compact
-            </label>
-            <FilterPillBar allowed={allowed} setAllowed={setAllowed} />
-          </div>
+          <FilterPillBar allowed={allowed} setAllowed={setAllowed} />
           {error && <div className="text-xs text-rose-600">{error}</div>}
         </div>
       </section>
@@ -365,12 +429,36 @@ export default function GhTimeline({
                     return new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf();
                   })
                   .map((ev) => (
-                  <TimelineItem key={ev.id} ev={ev} compact={compact} />
+                  <TimelineItem key={ev.id} ev={ev} />
                 ))}
               </ol>
             </div>
           ))}
         </div>
+        
+        {/* Infinite scroll trigger */}
+        {hasMore && (
+          <div ref={observerTarget} className="py-8 flex justify-center">
+            {isLoadingMore ? (
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                <RefreshCw className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Loading more events...</span>
+              </div>
+            ) : (
+              <div className="text-sm text-slate-500 dark:text-slate-400">
+                Scroll for more
+              </div>
+            )}
+          </div>
+        )}
+        
+        {!hasMore && events.length > 0 && (
+          <div className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+            {page >= 3 
+              ? "Reached GitHub API limit (max 300 events)" 
+              : "No more events to load"}
+          </div>
+        )}
       </section>
     </div>
   );
@@ -432,12 +520,10 @@ function FilterPillBar({
   );
 }
 
-function TimelineItem({ ev, compact }: { ev: GithubEvent; compact: boolean }) {
+function TimelineItem({ ev }: { ev: GithubEvent }) {
   const meta = eventIconAndText(ev);
   const [open, setOpen] = useState(false);
-  const payload = ev.payload;
-  // @ts-expect-error
-  const commits: Commit[] = ev.type === "PushEvent" ? (payload.commits || []) : [];
+  const commits = isPushEvent(ev) ? (ev.payload.commits || []) : [];
 
   return (
     <li className="mb-6">
@@ -453,7 +539,7 @@ function TimelineItem({ ev, compact }: { ev: GithubEvent; compact: boolean }) {
           <span className="text-slate-300 dark:text-slate-600">•</span> id: {ev.id}
         </div>
 
-        {ev.type === "PushEvent" && commits.length > 0 && (
+        {isPushEvent(ev) && commits.length > 0 && (
           <div className="pl-6">
             <button onClick={() => setOpen(v => !v)} className="mt-1 inline-flex items-center gap-1 text-xs text-slate-700 dark:text-slate-300">
               {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} commits ({commits.length})

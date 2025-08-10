@@ -12,13 +12,14 @@ export type EventsResult = {
 
 export async function fetchEventsWithEnv(
   env: Partial<CloudflareEnv>,
-  user: string
+  user: string,
+  page: number = 1
 ): Promise<EventsResult> {
   const kv = env.GHACTIVITY_KV;
   const token = env.GITHUB_PAT;
 
-  const listKey = `events:${user}`;
-  const etagKey = `events:${user}:etag`;
+  const listKey = `events:${user}:page:${page}`;
+  const etagKey = `events:${user}:page:${page}:etag`;
 
   let prev: string | null = null;
   let prevEtag: string | null = null;
@@ -37,6 +38,7 @@ export async function fetchEventsWithEnv(
     const response = await octokit.activity.listPublicEventsForUser({
       username: user,
       per_page: 100,
+      page,
     });
 
     // Validate response with Zod schema
@@ -104,6 +106,7 @@ export async function fetchEventsWithEnv(
         const freshResponse = await freshOctokit.activity.listPublicEventsForUser({
           username: user,
           per_page: 100,
+          page,
         });
         
         // Validate fresh response with Zod schema

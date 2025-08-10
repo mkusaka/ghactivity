@@ -13,6 +13,7 @@ A real-time GitHub activity timeline viewer built with Next.js and Cloudflare Wo
 - 🔄 Auto-refresh with configurable intervals
 - 📥 Export events as JSON
 - 🎯 Event type filtering
+- ♾️ Infinite scroll (up to 300 events due to GitHub API limits)
 
 ## Getting Started
 
@@ -116,8 +117,11 @@ src/
 - **Without authentication**: 60 requests/hour
 - **With authentication**: 5,000 requests/hour
 - **With GitHub App**: 5,000-15,000 requests/hour
+- **Pagination limit**: Maximum 3 pages × 100 events per page (300 events total)
 
 The app uses ETag caching to minimize API calls and falls back to cached data when rate limited.
+
+**Note**: GitHub's Events API limits to a maximum of 300 events. The app fetches 100 events per page for efficiency, requiring only 3 API calls to retrieve all available events.
 
 ## Technologies Used
 
