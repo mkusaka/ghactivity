@@ -1,6 +1,12 @@
 // src/app/[user]/shared.ts
+import { Octokit } from "@octokit/rest";
+import type { RestEndpointMethodTypes } from "@octokit/types";
+
+// GitHub API Event types
+export type GithubEvent = RestEndpointMethodTypes["activity"]["listPublicEventsForUser"]["response"]["data"][number];
+
 export type EventsResult = {
-  events: any[];
+  events: GithubEvent[];
   meta: { cache: "HIT" | "MISS" | "STALE"; pollInterval?: number; etag?: string };
 };
 
@@ -21,58 +27,87 @@ export async function fetchEventsWithEnv(
     [prev, prevEtag] = await Promise.all([kv.get(listKey), kv.get(etagKey)]);
   }
 
-  const headers: Record<string, string> = { Accept: "application/vnd.github+json" };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  if (prevEtag) headers["If-None-Match"] = prevEtag;
+  // Initialize Octokit client
+  const octokit = new Octokit({
+    auth: token,
+    headers: prevEtag ? { "If-None-Match": prevEtag } : undefined,
+  });
 
-  const gh = await fetch(
-    `https://api.github.com/users/${encodeURIComponent(user)}/events/public?per_page=100`,
-    { headers }
-  );
+  try {
+    const response = await octokit.activity.listPublicEventsForUser({
+      username: user,
+      per_page: 100,
+    });
 
-  if (gh.status === 304) {
-    if (prev) {
-      const poll = parseInt(gh.headers.get("X-Poll-Interval") || "");
-      return {
-        events: JSON.parse(prev),
-        meta: { cache: "HIT", pollInterval: Number.isFinite(poll) ? poll : undefined, etag: prevEtag ?? undefined },
-      };
-    }
-    // 304 but no cache - fetch without ETag
-    const freshHeaders: Record<string, string> = { Accept: "application/vnd.github+json" };
-    if (token) freshHeaders.Authorization = `Bearer ${token}`;
-    
-    const freshGh = await fetch(
-      `https://api.github.com/users/${encodeURIComponent(user)}/events/public?per_page=100`,
-      { headers: freshHeaders }
-    );
-    
-    if (!freshGh.ok) {
-      throw new Error(`GitHub error ${freshGh.status}`);
-    }
-    
-    const body = await freshGh.text();
-    const etag = freshGh.headers.get("ETag") || undefined;
-    const poll = parseInt(freshGh.headers.get("X-Poll-Interval") || "");
-    
+    const events = response.data;
+    const etag = response.headers.etag;
+    const pollInterval = response.headers["x-poll-interval"] ? 
+      parseInt(response.headers["x-poll-interval"]) : undefined;
+
+    // Cache the new data
     if (kv) {
-      if (etag) await kv.put(etagKey, etag, { expirationTtl: 60 * 30 });
-      await kv.put(listKey, body, { expirationTtl: 60 * 5 });
+      if (etag) await kv.put(etagKey, etag, { expirationTtl: 60 * 30 }); // 30分
+      await kv.put(listKey, JSON.stringify(events), { expirationTtl: 60 * 5 }); // 5分
     }
-    
-    return {
-      events: JSON.parse(body),
-      meta: { cache: "MISS", pollInterval: Number.isFinite(poll) ? poll : undefined, etag },
-    };
-  }
 
-  if (!gh.ok) {
-    if (prev) return { events: JSON.parse(prev), meta: { cache: "STALE" } };
-    
-    // Better error messages for common GitHub API errors
-    if (gh.status === 403) {
-      const remaining = gh.headers.get("X-RateLimit-Remaining");
-      const reset = gh.headers.get("X-RateLimit-Reset");
+    return {
+      events,
+      meta: { 
+        cache: "MISS", 
+        pollInterval: Number.isFinite(pollInterval) ? pollInterval : undefined, 
+        etag 
+      },
+    };
+  } catch (error: any) {
+    // Handle 304 Not Modified
+    if (error.status === 304) {
+      if (prev) {
+        const pollInterval = error.response?.headers?.["x-poll-interval"] ? 
+          parseInt(error.response.headers["x-poll-interval"]) : undefined;
+        return {
+          events: JSON.parse(prev),
+          meta: { 
+            cache: "HIT", 
+            pollInterval: Number.isFinite(pollInterval) ? pollInterval : undefined, 
+            etag: prevEtag ?? undefined 
+          },
+        };
+      }
+      // 304 but no cache - fetch without ETag
+      const freshOctokit = new Octokit({ auth: token });
+      try {
+        const freshResponse = await freshOctokit.activity.listPublicEventsForUser({
+          username: user,
+          per_page: 100,
+        });
+        
+        const events = freshResponse.data;
+        const etag = freshResponse.headers.etag;
+        const pollInterval = freshResponse.headers["x-poll-interval"] ? 
+          parseInt(freshResponse.headers["x-poll-interval"]) : undefined;
+        
+        if (kv) {
+          if (etag) await kv.put(etagKey, etag, { expirationTtl: 60 * 30 });
+          await kv.put(listKey, JSON.stringify(events), { expirationTtl: 60 * 5 });
+        }
+        
+        return {
+          events,
+          meta: { 
+            cache: "MISS", 
+            pollInterval: Number.isFinite(pollInterval) ? pollInterval : undefined, 
+            etag 
+          },
+        };
+      } catch (freshError: any) {
+        throw freshError;
+      }
+    }
+
+    // Handle other errors
+    if (error.status === 403) {
+      const remaining = error.response?.headers?.["x-ratelimit-remaining"];
+      const reset = error.response?.headers?.["x-ratelimit-reset"];
       
       if (remaining === "0") {
         const resetDate = reset ? new Date(parseInt(reset) * 1000).toLocaleTimeString() : "soon";
@@ -81,24 +116,15 @@ export async function fetchEventsWithEnv(
       throw new Error(`GitHub API access denied (403). This might be due to rate limits. Set GITHUB_PAT secret for authentication.`);
     }
     
-    if (gh.status === 404) {
+    if (error.status === 404) {
       throw new Error(`User "${user}" not found on GitHub`);
     }
+
+    // If we have cached data, return it as STALE
+    if (prev) {
+      return { events: JSON.parse(prev), meta: { cache: "STALE" } };
+    }
     
-    throw new Error(`GitHub API error ${gh.status}`);
+    throw new Error(`GitHub API error: ${error.message || error.status || 'Unknown error'}`);
   }
-
-  const body = await gh.text();
-  const etag = gh.headers.get("ETag") || undefined;
-  const poll = parseInt(gh.headers.get("X-Poll-Interval") || "");
-
-  if (kv) {
-    if (etag) await kv.put(etagKey, etag, { expirationTtl: 60 * 30 }); // 30分
-    await kv.put(listKey, body, { expirationTtl: 60 * 5 });            // 5分
-  }
-
-  return {
-    events: JSON.parse(body),
-    meta: { cache: "MISS", pollInterval: Number.isFinite(poll) ? poll : undefined, etag },
-  };
 }

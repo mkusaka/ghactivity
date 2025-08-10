@@ -9,8 +9,7 @@ import {
   RefreshCw, ChevronDown, ChevronRight, Filter, Link2, AlertTriangle, Download, Copy
 } from "lucide-react";
 import { getEventsAction } from "@/app/[user]/actions";
-
-type GhEvent = any;
+import type { GithubEvent } from "@/app/[user]/shared";
 
 function fmtRel(iso: string) {
   const d = new Date(iso);
@@ -31,7 +30,7 @@ const TYPE_LABELS = [
   "CreateEvent", "DeleteEvent", "MemberEvent",
 ] as const;
 
-function eventIconAndText(ev: GhEvent) {
+function eventIconAndText(ev: GithubEvent) {
   const repo = ev.repo?.name;
   const urlRepo = `https://github.com/${repo}`;
   const pr = ev.payload?.pull_request;
@@ -138,10 +137,10 @@ export default function GhTimeline({
   pollSec = 60,
 }: {
   user: string;
-  initial: GhEvent[];
+  initial: GithubEvent[];
   pollSec?: number;
 }) {
-  const [events, setEvents] = useState<GhEvent[]>(initial);
+  const [events, setEvents] = useState<GithubEvent[]>(initial);
   const [loading, setLoading] = useState(false);
   const [allowed, setAllowed] = useState<Set<string>>(new Set());
   const [compact, setCompact] = useState(false);
@@ -158,7 +157,7 @@ export default function GhTimeline({
   }, [user, pollSec]);
 
   const grouped = useMemo(() => {
-    const g: Record<string, GhEvent[]> = {};
+    const g: Record<string, GithubEvent[]> = {};
     for (const e of events) {
       const k = new Date(e.created_at).toDateString();
       (g[k] ||= []).push(e);
@@ -349,7 +348,7 @@ function FilterPillBar({
   );
 }
 
-function TimelineItem({ ev, compact }: { ev: GhEvent; compact: boolean }) {
+function TimelineItem({ ev, compact }: { ev: GithubEvent; compact: boolean }) {
   const meta = eventIconAndText(ev);
   const [open, setOpen] = useState(false);
   const commits = ev.type === "PushEvent" ? (ev.payload?.commits || []) : [];

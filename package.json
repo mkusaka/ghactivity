@@ -12,6 +12,8 @@
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts"
 	},
 	"dependencies": {
+		"@octokit/rest": "^22.0.0",
+		"@octokit/types": "^14.1.0",
 		"@opennextjs/cloudflare": "^1.3.0",
 		"framer-motion": "^12.23.12",
 		"lucide-react": "^0.539.0",
