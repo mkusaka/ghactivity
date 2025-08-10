@@ -1,7 +1,7 @@
 // src/components/GhTimeline.tsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
@@ -163,17 +163,21 @@ export default function GhTimeline({
   pollSec?: number;
 }) {
   const [events, setEvents] = useState<GithubEvent[]>(initial);
-  const [loading, setLoading] = useState(false);
   const [allowed, setAllowed] = useState<Set<string>>(new Set());
   const [compact, setCompact] = useState(false);
   const [error, setError] = useState("");
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const t = setInterval(async () => {
-      try {
-        const { events } = await getEventsAction(user);
-        setEvents(events);
-      } catch {}
+    const t = setInterval(() => {
+      startTransition(async () => {
+        try {
+          const { events } = await getEventsAction(user);
+          setEvents(events);
+        } catch {
+          // Silent fail for background refresh
+        }
+      });
     }, Math.max(15, pollSec) * 1000);
     return () => clearInterval(t);
   }, [user, pollSec]);
@@ -223,16 +227,16 @@ export default function GhTimeline({
 
   const filtered = useMemo(() => (allowed.size === 0 ? events : events.filter(e => e.type && allowed.has(e.type))), [events, allowed]);
 
-  const onRefresh = async () => {
-    try {
-      setLoading(true);
-      const { events } = await getEventsAction(user);
-      setEvents(events);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setLoading(false);
-    }
+  const onRefresh = () => {
+    startTransition(async () => {
+      try {
+        setError("");
+        const { events } = await getEventsAction(user);
+        setEvents(events);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e));
+      }
+    });
   };
 
   const downloadJson = () => {
@@ -252,16 +256,22 @@ export default function GhTimeline({
       {/* Header: buttons with opaque white + ring */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">{user} — Recent GitHub Activity</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 inline-flex items-center gap-2">
+            {user} — Recent GitHub Activity
+            {isPending && (
+              <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse" title="Refreshing data..." />
+            )}
+          </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400">Timeline of public (or authorized) events.</p>
         </div>
         <div className="flex gap-2 items-center">
           <button
             onClick={onRefresh}
-            disabled={loading}
-            className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center gap-2"
+            disabled={isPending}
+            className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 transition-opacity"
           >
-            <RefreshCw className="w-4 h-4" />Refresh
+            <RefreshCw className={`w-4 h-4 ${isPending ? 'animate-spin' : ''}`} />
+            {isPending ? 'Refreshing...' : 'Refresh'}
           </button>
           <button
             onClick={downloadJson}
@@ -279,7 +289,7 @@ export default function GhTimeline({
       </header>
 
       {/* Summary cards: opaque white + ring */}
-      <section className="mt-6 grid gap-3 sm:grid-cols-3">
+      <section className={`mt-6 grid gap-3 sm:grid-cols-3 transition-opacity duration-300 ${isPending ? 'opacity-50' : 'opacity-100'}`}>
         <Stat label="Commits" value={counters.commits} icon={<GitCommit className="w-4 h-4" />} />
         <Stat label="PRs (opened/merged)" value={`${counters.prsOpened}/${counters.prsMerged}`} icon={<GitPullRequest className="w-4 h-4" />} />
         <Stat label="Issues (open/closed)" value={`${counters.issuesOpened}/${counters.issuesClosed}`} icon={<AlertTriangle className="w-4 h-4" />} />
@@ -304,7 +314,7 @@ export default function GhTimeline({
       </section>
 
       {/* Timeline main content */}
-      <section className="mt-6">
+      <section className={`mt-6 transition-opacity duration-300 ${isPending ? 'opacity-50' : 'opacity-100'}`}>
         {Object.keys(grouped).length === 0 && (
           <div className="text-slate-500 dark:text-slate-400 text-sm">No events.</div>
         )}
