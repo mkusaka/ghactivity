@@ -51,7 +51,7 @@ export default function ThemeToggle() {
         bottom-4 right-4
         sm:bottom-auto sm:top-4 sm:right-4
         p-2.5 sm:p-2 rounded-lg
-        bg-white/90 backdrop-blur-sm dark:bg-gray-800
+        bg-white dark:bg-gray-800
         border border-neutral-200 dark:border-gray-600
         shadow-lg shadow-neutral-900/5 dark:shadow-none
         hover:border-neutral-300 hover:shadow-xl hover:shadow-neutral-900/5 dark:hover:border-gray-500

@@ -15,7 +15,7 @@ export default function Home() {
       <div
         className="
           w-full max-w-md rounded-2xl
-          bg-white/90 backdrop-blur-sm dark:bg-gray-900
+          bg-white dark:bg-gray-900
           border border-neutral-200 dark:border-gray-700
           shadow-lg shadow-neutral-900/5 dark:shadow-none
           p-6
@@ -34,9 +34,9 @@ export default function Home() {
         <input
           className="
             w-full mt-1 px-3 py-2 rounded-lg
-            bg-neutral-50/70 dark:bg-gray-800
-            text-neutral-900 placeholder:text-neutral-500
-            dark:text-white dark:placeholder:text-gray-500
+            bg-neutral-50 dark:bg-gray-800
+            text-neutral-900 dark:text-white
+            placeholder:text-neutral-500 dark:placeholder:text-gray-500
             border border-neutral-200 dark:border-gray-600
             outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20
             transition-all duration-200

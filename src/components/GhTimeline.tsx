@@ -409,14 +409,14 @@ export default function GhTimeline({
           <button
             onClick={onRefresh}
             disabled={isPending}
-            className="px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm dark:bg-gray-800 text-neutral-700 dark:text-gray-200 border border-neutral-200 dark:border-gray-600 hover:bg-white hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 transition-all duration-200"
+            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 text-neutral-700 dark:text-gray-200 border border-neutral-200 dark:border-gray-600 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 transition-all duration-200"
           >
             <RefreshCw className={`w-4 h-4 ${isPending ? 'animate-spin' : ''}`} />
             {isPending ? 'Refreshing...' : 'Refresh'}
           </button>
           <button
             onClick={downloadJson}
-            className="px-3 py-2 rounded-lg bg-white/80 backdrop-blur-sm dark:bg-gray-800 text-neutral-700 dark:text-gray-200 border border-neutral-200 dark:border-gray-600 hover:bg-white hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-700 inline-flex items-center gap-2 transition-all duration-200"
+            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 text-neutral-700 dark:text-gray-200 border border-neutral-200 dark:border-gray-600 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-700 inline-flex items-center gap-2 transition-all duration-200"
           >
             <Download className="w-4 h-4" />Export JSON
           </button>
@@ -435,7 +435,7 @@ export default function GhTimeline({
       </section>
 
       {/* Filter card: opaque white + ring */}
-      <section className="mt-6 p-4 rounded-xl bg-white/80 backdrop-blur-sm dark:bg-gray-800 border border-neutral-200/70 dark:border-gray-600">
+      <section className="mt-6 p-4 rounded-xl bg-white dark:bg-gray-800 border border-neutral-200 dark:border-gray-600">
         <div className="flex items-center justify-between gap-3">
           <FilterPillBar allowed={allowed} setAllowed={setAllowed} />
           {error && <div className="text-xs text-rose-600">{error}</div>}
@@ -457,10 +457,10 @@ export default function GhTimeline({
             })
             .map(([day, items]) => (
             <div key={day}>
-              <div className="sticky top-0 z-10 py-1 backdrop-blur-md bg-gradient-to-r from-neutral-50/95 to-white/95 dark:from-gray-900/95 dark:to-gray-950/95 dark:bg-none">
+              <div className="sticky top-0 z-10 py-1 backdrop-blur-sm bg-gradient-to-r from-neutral-50/95 to-white/95 dark:from-gray-900/95 dark:to-gray-950/95">
                 <h3 className="text-sm font-semibold text-neutral-600 dark:text-gray-400">{day}</h3>
               </div>
-              <ol className="relative ml-3 border-l border-neutral-200/50 dark:border-gray-700 pl-6">
+              <ol className="relative ml-3 border-l border-neutral-200 dark:border-gray-700 pl-6">
                 {items
                   .sort((a, b) => {
                     if (!a.created_at || !b.created_at) return 0;
@@ -506,7 +506,7 @@ function Stat({ label, value, icon }: { label: string; value: string | number; i
   return (
     <motion.div
       layout
-      className="p-4 rounded-xl bg-white/80 backdrop-blur-sm dark:bg-gray-800 border border-neutral-200/70 dark:border-gray-600 flex items-center gap-3 hover:border-neutral-300 hover:bg-white hover:shadow-sm dark:hover:border-gray-500 transition-all duration-200"
+      className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-neutral-200 dark:border-gray-600 flex items-center gap-3 hover:border-neutral-300 hover:bg-gray-50 hover:shadow-sm dark:hover:bg-gray-700 dark:hover:border-gray-500 transition-all duration-200"
     >
       <div className="p-2 rounded-lg bg-neutral-100 dark:bg-gray-700">{icon}</div>
       <div>
@@ -539,7 +539,7 @@ function FilterPillBar({
             className={`px-3 py-1 rounded-full text-xs border transition-all duration-200 ${
               isSelected
                 ? "bg-indigo-600 dark:bg-indigo-500 text-white dark:text-white border-indigo-600 dark:border-indigo-500 shadow-sm shadow-indigo-600/20"
-                : "bg-white/70 dark:bg-gray-700 text-neutral-700 dark:text-gray-300 border-neutral-300/70 dark:border-gray-600 hover:bg-white hover:border-neutral-400 dark:hover:bg-gray-600"
+                : "bg-white dark:bg-gray-700 text-neutral-700 dark:text-gray-300 border-neutral-300 dark:border-gray-600 hover:bg-gray-50 hover:border-neutral-400 dark:hover:bg-gray-600"
             }`}
             aria-pressed={isSelected}
             title={active ? `Filter: showing ${t}` : `Filter: hidden ${t}`}
@@ -550,7 +550,7 @@ function FilterPillBar({
       })}
       <button
         onClick={() => setAllowed(new Set())}
-        className="px-3 py-1 rounded-full text-xs bg-white/70 dark:bg-gray-700 text-neutral-700 dark:text-gray-300 border border-neutral-300/70 dark:border-gray-600 hover:bg-white hover:border-neutral-400 dark:hover:bg-gray-600 transition-all duration-200"
+        className="px-3 py-1 rounded-full text-xs bg-white dark:bg-gray-700 text-neutral-700 dark:text-gray-300 border border-neutral-300 dark:border-gray-600 hover:bg-gray-50 hover:border-neutral-400 dark:hover:bg-gray-600 transition-all duration-200"
       >
         Clear
       </button>
@@ -587,7 +587,7 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
                   <ul className="mt-2 space-y-1 text-xs">
                     {commits.map(c => (
-                      <li key={c.sha} className="rounded-lg p-2 bg-white/50 dark:bg-gray-900 border border-neutral-200/50 dark:border-gray-800">
+                      <li key={c.sha} className="rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800">
                         <a 
                           href={`https://github.com/${ev.repo?.name}/commit/${c.sha}`} 
                           target="_blank" 
