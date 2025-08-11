@@ -20,6 +20,9 @@ dependencies:
   framer-motion:
     specifier: ^12.23.12
     version: 12.23.12(react-dom@19.1.1)(react@19.1.1)
+  import-in-the-middle:
+    specifier: ^1.14.2
+    version: 1.14.2
   lucide-react:
     specifier: ^0.539.0
     version: 0.539.0(react@19.1.1)
