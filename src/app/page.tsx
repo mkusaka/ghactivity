@@ -2,10 +2,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { RefreshCw } from "lucide-react";
 
 export default function Home() {
   const [user, setUser] = useState("mkusaka");
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   return (
@@ -40,20 +42,38 @@ export default function Home() {
           placeholder="octocat"
           value={user}
           onChange={(e) => setUser(e.target.value)}
-          onKeyDown={(e) => (e.key === "Enter" && user) ? router.push(`/${encodeURIComponent(user)}`) : undefined}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && user && !isPending) {
+              startTransition(() => {
+                router.push(`/${encodeURIComponent(user)}`);
+              });
+            }
+          }}
           aria-label="GitHub username"
+          disabled={isPending}
         />
 
         <button
-          className="
+          className={`
             mt-4 w-full px-4 py-2 rounded-xl
             bg-slate-900 text-white hover:opacity-95 active:opacity-90
             dark:bg-slate-100 dark:text-slate-900
             shadow-sm
-          "
-          onClick={() => user && router.push(`/${encodeURIComponent(user)}`)}
+            inline-flex items-center justify-center gap-2
+            transition-opacity
+            ${isPending ? 'opacity-70 cursor-not-allowed' : ''}
+          `}
+          onClick={() => {
+            if (user && !isPending) {
+              startTransition(() => {
+                router.push(`/${encodeURIComponent(user)}`);
+              });
+            }
+          }}
+          disabled={isPending}
         >
-          Show Activity
+          {isPending && <RefreshCw className="w-4 h-4 animate-spin" />}
+          {isPending ? 'Loading...' : 'Show Activity'}
         </button>
       </div>
     </main>

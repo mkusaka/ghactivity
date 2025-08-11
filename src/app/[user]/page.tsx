@@ -1,8 +1,6 @@
 // src/app/[user]/page.tsx
 import { getEventsAction } from "./actions";
 import GhTimeline from "@/components/GhTimeline";
-import { fetchEventsWithEnv } from "./shared";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { Metadata } from "next";
 
 export const runtime = "nodejs";
@@ -21,17 +19,10 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ user: string }> }): Promise<Metadata> {
-  // Lightweight fetch for metadata (reusing the same function)
+  // Simplified metadata generation without API call for faster initial load
   const { user } = await params;
-  const { env } = getCloudflareContext();
-  const { events } = await fetchEventsWithEnv(env, user);
-
-  const first = events?.[0];
   const title = `${user} — Recent GitHub Activity`;
-  const desc =
-    first?.type && first?.repo?.name
-      ? `Latest: ${first.type.replace(/Event$/, "")} in ${first.repo.name}`
-      : `Latest public events by ${user}`;
+  const desc = `View recent GitHub activity for ${user}`;
 
   return {
     title,
