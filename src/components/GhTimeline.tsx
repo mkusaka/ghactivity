@@ -296,7 +296,8 @@ export default function GhTimeline({
 
   const counters = useMemo(() => {
     const c = { commits: 0, prsOpened: 0, prsMerged: 0, issuesOpened: 0, issuesClosed: 0, reviews: 0, stars: 0, forks: 0, releases: 0 };
-    for (const e of filtered) {
+    // Always calculate from all events, not filtered ones
+    for (const e of events) {
       if (isPushEvent(e)) {
         c.commits += e.payload.commits?.length || 0;
       } else if (isPullRequestEvent(e)) {
@@ -325,7 +326,7 @@ export default function GhTimeline({
       }
     }
     return c;
-  }, [filtered]);
+  }, [events]);
 
   const onRefresh = () => {
     startTransition(async () => {
