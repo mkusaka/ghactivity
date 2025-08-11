@@ -50,10 +50,11 @@ export default function ThemeToggle() {
         fixed z-50
         bottom-4 right-4
         sm:bottom-auto sm:top-4 sm:right-4
-        p-2.5 sm:p-2 rounded-xl
+        p-2.5 sm:p-2 rounded-lg
         bg-white dark:bg-slate-900
-        ring-1 ring-slate-200 dark:ring-slate-800
-        shadow-lg sm:shadow-sm hover:shadow-xl sm:hover:shadow-md
+        border border-gray-200 dark:border-slate-800
+        shadow-lg shadow-gray-900/5 dark:shadow-none
+        hover:border-gray-300 dark:hover:border-slate-700
         transition-all duration-200
       "
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}

@@ -11,33 +11,35 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <main className="min-h-dvh grid place-items-center p-6 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950">
+    <main className="min-h-dvh grid place-items-center p-6 bg-gradient-to-br from-gray-50/50 to-white dark:from-slate-900 dark:to-slate-950">
       <div
         className="
           w-full max-w-md rounded-2xl
           bg-white dark:bg-slate-900
-          shadow-sm ring-1 ring-slate-200/80 dark:ring-slate-800
+          border border-gray-200/70 dark:border-slate-800
+          shadow-xl shadow-gray-200/20 dark:shadow-none
           p-6
         "
       >
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-slate-100">
           GitHub Recent Activity
         </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+        <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
           Enter a GitHub username to view a timeline.
         </p>
 
-        <label className="text-xs text-slate-700 dark:text-slate-300 block mt-4">
+        <label className="text-xs font-medium text-gray-700 dark:text-slate-300 block mt-4">
           Username
         </label>
         <input
           className="
-            w-full mt-1 px-3 py-2 rounded-xl
-            bg-white dark:bg-slate-900
-            text-slate-900 placeholder:text-slate-400
+            w-full mt-1 px-3 py-2 rounded-lg
+            bg-gray-50/50 dark:bg-slate-900
+            text-gray-900 placeholder:text-gray-400
             dark:text-slate-100 dark:placeholder:text-slate-500
-            ring-1 ring-slate-300 dark:ring-slate-700
-            outline-none focus:ring-2 focus:ring-slate-500/60 dark:focus:ring-slate-400/60
+            border border-gray-200 dark:border-slate-700
+            outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 dark:focus:border-slate-400 dark:focus:ring-slate-400/20
+            transition-colors duration-200
           "
           placeholder="octocat"
           value={user}
@@ -55,13 +57,13 @@ export default function Home() {
 
         <button
           className={`
-            mt-4 w-full px-4 py-2 rounded-xl
-            bg-slate-900 text-white hover:opacity-95 active:opacity-90
-            dark:bg-slate-100 dark:text-slate-900
-            shadow-sm
+            mt-4 w-full px-4 py-2.5 rounded-lg
+            bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-900
+            dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200
+            font-medium
             inline-flex items-center justify-center gap-2
-            transition-opacity
-            ${isPending ? 'opacity-70 cursor-not-allowed' : ''}
+            transition-colors duration-200
+            ${isPending ? 'opacity-60 cursor-not-allowed' : ''}
           `}
           onClick={() => {
             if (user && !isPending) {

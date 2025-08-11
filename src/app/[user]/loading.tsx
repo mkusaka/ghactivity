@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <main className="min-h-dvh bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
+    <main className="min-h-dvh bg-gradient-to-br from-gray-50/30 via-white to-white dark:from-slate-900 dark:to-slate-950 text-gray-900 dark:text-slate-100">
       <div className="mx-auto max-w-5xl p-6">
         <div className="animate-pulse">
           {/* Header skeleton */}
@@ -18,7 +18,7 @@ export default function Loading() {
           {/* Stats cards skeleton */}
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {[...Array(7)].map((_, i) => (
-              <div key={i} className="p-4 rounded-2xl bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm">
+              <div key={i} className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-slate-200 dark:bg-slate-800 rounded-xl" />
                   <div>
@@ -31,7 +31,7 @@ export default function Loading() {
           </div>
 
           {/* Filter skeleton */}
-          <div className="mt-6 p-4 rounded-2xl bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm">
+          <div className="mt-6 p-4 rounded-xl bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800">
             <div className="flex gap-2">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="h-7 w-20 bg-slate-200 dark:bg-slate-800 rounded-full" />
