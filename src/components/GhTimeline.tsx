@@ -592,7 +592,7 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
                           href={`https://github.com/${ev.repo?.name}/commit/${c.sha}`} 
                           target="_blank" 
                           rel="noreferrer"
-                          className="text-[11px] bg-neutral-100 dark:bg-gray-700 px-1 py-0.5 rounded hover:bg-neutral-200 dark:hover:bg-gray-600">
+                          className="text-[11px] bg-neutral-100 dark:bg-gray-700 px-1 py-0.5 rounded hover:bg-neutral-200 dark:hover:bg-gray-600"
                         >
                           {c.sha.slice(0, 7)}
                         </a>
