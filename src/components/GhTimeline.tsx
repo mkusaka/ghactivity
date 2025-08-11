@@ -260,7 +260,12 @@ export default function GhTimeline({
 
   // Auto-refresh first page only (preserves loaded pages)
   useEffect(() => {
-    const t = setInterval(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+    
+    const refresh = () => {
+      // Only refresh if document is visible
+      if (document.visibilityState !== 'visible') return;
+      
       startTransition(async () => {
         try {
           const { events: newEvents } = await getEventsAction(user, 1);
@@ -278,8 +283,47 @@ export default function GhTimeline({
           // Silent fail for background refresh
         }
       });
-    }, Math.max(15, pollSec) * 1000);
-    return () => clearInterval(t);
+    };
+    
+    const startInterval = () => {
+      // Clear existing interval if any
+      if (intervalId) clearInterval(intervalId);
+      
+      // Start new interval
+      intervalId = setInterval(refresh, Math.max(15, pollSec) * 1000);
+    };
+    
+    const stopInterval = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+    
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Resume refresh when tab becomes visible
+        startInterval();
+        // Also do an immediate refresh when returning to the tab
+        refresh();
+      } else {
+        // Pause refresh when tab is not visible
+        stopInterval();
+      }
+    };
+    
+    // Start interval initially if document is visible
+    if (document.visibilityState === 'visible') {
+      startInterval();
+    }
+    
+    // Listen for visibility changes
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      stopInterval();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [user, pollSec, page]);
 
   const filtered = useMemo(() => (allowed.size === 0 ? events : events.filter(e => e.type && allowed.has(e.type))), [events, allowed]);
