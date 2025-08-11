@@ -87,6 +87,42 @@ wrangler secret put GITHUB_PAT
 pnpm deploy
 ```
 
+## Error Tracking with Sentry
+
+This project includes Sentry integration for error tracking and performance monitoring.
+
+### Setting up Sentry
+
+1. Create a Sentry account at [sentry.io](https://sentry.io)
+2. Create a new project for Next.js
+3. Copy your DSN from the project settings
+4. Add the DSN to your environment variables:
+
+```bash
+# For local development
+echo "NEXT_PUBLIC_SENTRY_DSN=https://your-dsn@sentry.io/project-id" >> .dev.vars
+
+# For production (Cloudflare Workers)
+wrangler secret put NEXT_PUBLIC_SENTRY_DSN
+wrangler secret put SENTRY_DSN
+```
+
+### Testing Sentry Integration
+
+Visit `/sentry-example-page` to test error tracking:
+- Throw client-side errors
+- Test API errors
+- Simulate React hydration errors
+- Send user feedback
+
+### Features
+
+- **React Error #418 Detection**: Automatically captures and tags React hydration mismatches
+- **Session Replay**: Records user sessions when errors occur (configurable)
+- **User Feedback**: Built-in feedback widget for user reports
+- **Performance Monitoring**: Tracks application performance metrics
+- **Distributed Tracing**: Traces requests across client and server
+
 ## Project Structure
 
 ```
@@ -111,6 +147,11 @@ src/
 |----------|-------------|----------|
 | `GITHUB_PAT` | GitHub Personal Access Token for higher rate limits | No (but recommended) |
 | `GHACTIVITY_KV` | Cloudflare KV namespace for caching | Yes (auto-configured) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN for client-side error tracking | No (but recommended) |
+| `SENTRY_DSN` | Sentry DSN for server-side error tracking | No (but recommended) |
+| `SENTRY_AUTH_TOKEN` | Sentry auth token for source maps upload | No |
+| `SENTRY_ORG` | Sentry organization slug | No |
+| `SENTRY_PROJECT` | Sentry project slug | No |
 
 ## API Rate Limits
 
