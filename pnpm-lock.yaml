@@ -32,6 +32,9 @@ dependencies:
   react-dom:
     specifier: ^19.0.0
     version: 19.1.1(react@19.1.1)
+  require-in-the-middle:
+    specifier: ^7.5.2
+    version: 7.5.2
   zod:
     specifier: ^4.0.17
     version: 4.0.17
