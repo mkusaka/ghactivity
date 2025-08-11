@@ -10,7 +10,8 @@
 		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
-		"typecheck": "pnpm run cf-typegen && tsc --noEmit"
+		"typecheck": "pnpm run cf-typegen && tsc --noEmit",
+		"typecheck:ci": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@octokit/rest": "^22.0.0",
