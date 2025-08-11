@@ -49,7 +49,7 @@ function eventIconAndText(ev: GithubEvent) {
     const ref = ev.payload.ref;
     const branch = ref?.startsWith("refs/heads/") ? ref.replace("refs/heads/", "") : ref;
     return {
-      icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400",
+      icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400",
       title: `pushed ${count} commit${count !== 1 ? "s" : ""}`,
       desc: (
         <span>
@@ -69,7 +69,7 @@ function eventIconAndText(ev: GithubEvent) {
     const title = merged ? "merged a pull request" : `${action} a pull request`;
     return {
       icon: merged ? <GitMerge className="w-4 h-4" /> : <GitPullRequest className="w-4 h-4" />,
-      color: merged ? "bg-purple-500/15 text-purple-600 dark:bg-purple-500/20 dark:text-purple-400" : "bg-emerald-500/15 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400",
+      color: merged ? "bg-purple-500/15 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400" : "bg-emerald-500/15 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
       title,
       desc: (
         <span>
@@ -84,7 +84,7 @@ function eventIconAndText(ev: GithubEvent) {
     const action = ev.payload.action;
     return {
       icon: <AlertTriangle className="w-4 h-4" />,
-      color: action === "opened" ? "bg-rose-500/15 text-rose-600 dark:bg-rose-500/20 dark:text-rose-400" : "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400",
+      color: action === "opened" ? "bg-rose-500/15 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400" : "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400",
       title: `${action} an issue`,
       desc: (
         <span>
@@ -95,25 +95,25 @@ function eventIconAndText(ev: GithubEvent) {
   }
   
   if (isIssueCommentEvent(ev)) {
-    return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-sky-500/15 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400", title: "commented on an issue", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+    return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-sky-500/15 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400", title: "commented on an issue", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
   
   if (isPullRequestReviewEvent(ev)) {
     const reviewState = ev.payload.review?.state;
-    return { icon: <Eye className="w-4 h-4" />, color: "bg-amber-500/15 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400", title: `reviewed a pull request${reviewState ? ` (${String(reviewState).toLowerCase()})` : ""}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+    return { icon: <Eye className="w-4 h-4" />, color: "bg-amber-500/15 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400", title: `reviewed a pull request${reviewState ? ` (${String(reviewState).toLowerCase()})` : ""}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
   
   if (isReleaseEvent(ev)) {
     const tagName = ev.payload.release?.tag_name;
-    return { icon: <Tag className="w-4 h-4" />, color: "bg-fuchsia-500/15 text-fuchsia-600 dark:bg-fuchsia-500/20 dark:text-fuchsia-400", title: "published a release", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — {tagName}</span>) };
+    return { icon: <Tag className="w-4 h-4" />, color: "bg-fuchsia-500/15 text-fuchsia-600 dark:bg-fuchsia-950/50 dark:text-fuchsia-400", title: "published a release", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — {tagName}</span>) };
   }
   
   if (isForkEvent(ev)) {
-    return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+    return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
   
   if (isWatchEvent(ev)) {
-    return { icon: <Star className="w-4 h-4" />, color: "bg-yellow-500/15 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-400", title: "starred a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+    return { icon: <Star className="w-4 h-4" />, color: "bg-yellow-500/15 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-400", title: "starred a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
   
   if (isCreateEvent(ev)) {
@@ -126,7 +126,7 @@ function eventIconAndText(ev: GithubEvent) {
       : urlRepo;
     return { 
       icon: <GitBranch className="w-4 h-4" />, 
-      color: "bg-teal-500/15 text-teal-600 dark:bg-teal-500/20 dark:text-teal-400", 
+      color: "bg-teal-500/15 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400", 
       title: refName ? (
         <>
           created {refType} &quot;<a className="link" href={refUrl} target="_blank" rel="noreferrer">{refName}</a>&quot;
@@ -143,41 +143,41 @@ function eventIconAndText(ev: GithubEvent) {
     const refName = ev.payload.ref;
     return { 
       icon: <Trash2 className="w-4 h-4" />, 
-      color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-500/20 dark:text-zinc-400", 
+      color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400", 
       title: `deleted ${refType}${refName ? ` "${refName}"` : ""}`, 
       desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) 
     };
   }
   
   if (isPublicEvent(ev)) {
-    return { icon: <Unlock className="w-4 h-4" />, color: "bg-green-500/15 text-green-600 dark:bg-green-500/20 dark:text-green-400", title: "made repository public", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+    return { icon: <Unlock className="w-4 h-4" />, color: "bg-green-500/15 text-green-600 dark:bg-green-950/50 dark:text-green-400", title: "made repository public", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
   
   if (isCommitCommentEvent(ev)) {
-    return { icon: <MessageCircle className="w-4 h-4" />, color: "bg-violet-500/15 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400", title: "commented on a commit", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+    return { icon: <MessageCircle className="w-4 h-4" />, color: "bg-violet-500/15 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400", title: "commented on a commit", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
   
   if (isGollumEvent(ev)) {
     const pages = ev.payload.pages || [];
     const pageCount = pages.length;
-    return { icon: <BookOpen className="w-4 h-4" />, color: "bg-orange-500/15 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400", title: `updated ${pageCount} wiki page${pageCount !== 1 ? 's' : ''}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+    return { icon: <BookOpen className="w-4 h-4" />, color: "bg-orange-500/15 text-orange-600 dark:bg-orange-950/50 dark:text-orange-400", title: `updated ${pageCount} wiki page${pageCount !== 1 ? 's' : ''}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
   
   if (isPullRequestReviewCommentEvent(ev)) {
-    return { icon: <MessageCircle className="w-4 h-4" />, color: "bg-pink-500/15 text-pink-600 dark:bg-pink-500/20 dark:text-pink-400", title: "commented on PR review", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+    return { icon: <MessageCircle className="w-4 h-4" />, color: "bg-pink-500/15 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400", title: "commented on PR review", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
   
   if (isPullRequestReviewThreadEvent(ev)) {
     const action = ev.payload.action;
-    return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400", title: `${action} review thread`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+    return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400", title: `${action} review thread`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
   
   if (isMemberEvent(ev)) {
-    return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-400", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+    return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600 dark:bg-cyan-950/50 dark:text-cyan-400", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
   
   // Default case - should never happen with complete type coverage
-  return { icon: <Link2 className="w-4 h-4" />, color: "bg-gray-500/10 text-gray-700 dark:bg-gray-500/20 dark:text-gray-400", title: (ev as GithubEvent).type || "Unknown", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+  return { icon: <Link2 className="w-4 h-4" />, color: "bg-gray-500/10 text-gray-700 dark:bg-gray-800/50 dark:text-gray-400", title: (ev as GithubEvent).type || "Unknown", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
 }
 
 export default function GhTimeline({
@@ -409,14 +409,14 @@ export default function GhTimeline({
           <button
             onClick={onRefresh}
             disabled={isPending}
-            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 text-neutral-700 dark:text-gray-200 border border-neutral-200 dark:border-gray-600 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 transition-all duration-200"
+            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800/50 text-neutral-700 dark:text-gray-100 border border-neutral-200 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 transition-all duration-200"
           >
             <RefreshCw className={`w-4 h-4 ${isPending ? 'animate-spin' : ''}`} />
             {isPending ? 'Refreshing...' : 'Refresh'}
           </button>
           <button
             onClick={downloadJson}
-            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800 text-neutral-700 dark:text-gray-200 border border-neutral-200 dark:border-gray-600 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-700 inline-flex items-center gap-2 transition-all duration-200"
+            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800/50 text-neutral-700 dark:text-gray-100 border border-neutral-200 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-800 inline-flex items-center gap-2 transition-all duration-200"
           >
             <Download className="w-4 h-4" />Export JSON
           </button>
@@ -435,7 +435,7 @@ export default function GhTimeline({
       </section>
 
       {/* Filter card: opaque white + ring */}
-      <section className="mt-6 p-4 rounded-xl bg-white dark:bg-gray-800 border border-neutral-200 dark:border-gray-600">
+      <section className="mt-6 p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-neutral-200 dark:border-gray-700/50">
         <div className="flex items-center justify-between gap-3">
           <FilterPillBar allowed={allowed} setAllowed={setAllowed} />
           {error && <div className="text-xs text-rose-600">{error}</div>}
@@ -506,11 +506,11 @@ function Stat({ label, value, icon }: { label: string; value: string | number; i
   return (
     <motion.div
       layout
-      className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-neutral-200 dark:border-gray-600 flex items-center gap-3 hover:border-neutral-300 hover:bg-gray-50 hover:shadow-sm dark:hover:bg-gray-700 dark:hover:border-gray-500 transition-all duration-200"
+      className="p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-neutral-200 dark:border-gray-700/50 flex items-center gap-3 hover:border-neutral-300 hover:bg-gray-50 hover:shadow-sm dark:hover:bg-gray-800 dark:hover:border-gray-600 transition-all duration-200"
     >
-      <div className="p-2 rounded-lg bg-neutral-100 dark:bg-gray-700">{icon}</div>
+      <div className="p-2 rounded-lg bg-neutral-100 dark:bg-gray-700/50">{icon}</div>
       <div>
-        <div className="text-xs text-neutral-600 dark:text-gray-400">{label}</div>
+        <div className="text-xs text-neutral-600 dark:text-gray-300">{label}</div>
         <div className="text-lg font-semibold text-neutral-900 dark:text-white">{String(value)}</div>
       </div>
     </motion.div>
@@ -539,7 +539,7 @@ function FilterPillBar({
             className={`px-3 py-1 rounded-full text-xs border transition-all duration-200 ${
               isSelected
                 ? "bg-indigo-600 dark:bg-indigo-500 text-white dark:text-white border-indigo-600 dark:border-indigo-500 shadow-sm shadow-indigo-600/20"
-                : "bg-white dark:bg-gray-700 text-neutral-700 dark:text-gray-300 border-neutral-300 dark:border-gray-600 hover:bg-gray-50 hover:border-neutral-400 dark:hover:bg-gray-600"
+                : "bg-white dark:bg-gray-800/30 text-neutral-700 dark:text-gray-400 border-neutral-300 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-400 dark:hover:bg-gray-800/50"
             }`}
             aria-pressed={isSelected}
             title={active ? `Filter: showing ${t}` : `Filter: hidden ${t}`}
@@ -550,7 +550,7 @@ function FilterPillBar({
       })}
       <button
         onClick={() => setAllowed(new Set())}
-        className="px-3 py-1 rounded-full text-xs bg-white dark:bg-gray-700 text-neutral-700 dark:text-gray-300 border border-neutral-300 dark:border-gray-600 hover:bg-gray-50 hover:border-neutral-400 dark:hover:bg-gray-600 transition-all duration-200"
+        className="px-3 py-1 rounded-full text-xs bg-white dark:bg-gray-800/30 text-neutral-700 dark:text-gray-400 border border-neutral-300 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-400 dark:hover:bg-gray-800/50 transition-all duration-200"
       >
         Clear
       </button>

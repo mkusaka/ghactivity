@@ -11,12 +11,12 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <main className="min-h-dvh grid place-items-center p-6 bg-neutral-50 dark:bg-gray-950">
+    <main className="min-h-dvh grid place-items-center p-6 bg-gradient-to-b from-neutral-50 to-white dark:from-gray-900 dark:to-gray-950">
       <div
         className="
           w-full max-w-md rounded-2xl
-          bg-white dark:bg-gray-900
-          border border-neutral-200 dark:border-gray-700
+          bg-white dark:bg-gray-800/70
+          border border-neutral-200 dark:border-gray-700/50
           shadow-lg shadow-neutral-900/5 dark:shadow-none
           p-6
         "
@@ -34,10 +34,10 @@ export default function Home() {
         <input
           className="
             w-full mt-1 px-3 py-2 rounded-lg
-            bg-neutral-50 dark:bg-gray-800
+            bg-neutral-50 dark:bg-gray-900/50
             text-neutral-900 dark:text-white
             placeholder:text-neutral-500 dark:placeholder:text-gray-500
-            border border-neutral-200 dark:border-gray-600
+            border border-neutral-200 dark:border-gray-700/50
             outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20
             transition-all duration-200
           "

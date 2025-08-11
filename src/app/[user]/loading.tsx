@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <main className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white dark:bg-gray-950 text-neutral-900 dark:text-gray-100">
+    <main className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white dark:from-gray-900 dark:to-gray-950 text-neutral-900 dark:text-gray-100">
       <div className="mx-auto max-w-5xl p-6">
         <div className="animate-pulse">
           {/* Header skeleton */}
@@ -18,7 +18,7 @@ export default function Loading() {
           {/* Stats cards skeleton */}
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {[...Array(7)].map((_, i) => (
-              <div key={i} className="p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600">
+              <div key={i} className="p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/50">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-xl" />
                   <div>
@@ -31,7 +31,7 @@ export default function Loading() {
           </div>
 
           {/* Filter skeleton */}
-          <div className="mt-6 p-4 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600">
+          <div className="mt-6 p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700/50">
             <div className="flex gap-2">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="h-7 w-20 bg-gray-200 dark:bg-gray-700 rounded-full" />
