@@ -19,6 +19,10 @@ export function generateMetadata(): Metadata {
     title: "GitHub Recent Activity",
     description: "Timeline view of a user's recent GitHub events.",
     metadataBase: new URL("https://ghactivity.polyfill.workers.dev"),
+    icons: {
+      icon: '/icon.svg',
+      apple: '/apple-icon.png',
+    },
     other: {
       ...Sentry.getTraceData(),
     },
