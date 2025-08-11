@@ -92,18 +92,15 @@ export default function SentryExamplePage() {
             
             <button
               onClick={() => {
-                const user = Sentry.getCurrentScope().getUser();
+                // Create a feedback widget programmatically
                 const feedback = Sentry.getFeedback();
                 if (feedback) {
-                  feedback.openDialog({
-                    name: user?.username || "Anonymous",
-                    email: user?.email || "",
-                  });
+                  feedback.createWidget();
                 }
               }}
               className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
             >
-              Open Feedback Dialog
+              Open Feedback Widget
             </button>
           </div>
         </div>
