@@ -51,18 +51,18 @@ export default function ThemeToggle() {
         bottom-4 right-4
         sm:bottom-auto sm:top-4 sm:right-4
         p-2.5 sm:p-2 rounded-lg
-        bg-white dark:bg-gray-800
-        border border-gray-200 dark:border-gray-600
-        shadow-lg shadow-gray-900/5 dark:shadow-none
-        hover:border-gray-300 dark:hover:border-gray-500
+        bg-white/90 backdrop-blur-sm dark:bg-gray-800
+        border border-neutral-200 dark:border-gray-600
+        shadow-lg shadow-neutral-900/5 dark:shadow-none
+        hover:border-neutral-300 hover:shadow-xl hover:shadow-neutral-900/5 dark:hover:border-gray-500
         transition-all duration-200
       "
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
     >
       {theme === "light" ? (
-        <Moon className="w-5 h-5 text-slate-700" />
+        <Moon className="w-5 h-5 text-neutral-700" />
       ) : (
-        <Sun className="w-5 h-5 text-slate-300" />
+        <Sun className="w-5 h-5 text-gray-300" />
       )}
     </button>
   );
