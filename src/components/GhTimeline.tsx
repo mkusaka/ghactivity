@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
   MessageSquare, GitBranch, GitMerge, Trash2, Users, Eye, Clock,
-  RefreshCw, ChevronDown, ChevronRight, Link2, AlertTriangle, Download, Copy,
+  RefreshCw, ChevronDown, ChevronRight, Link2, AlertTriangle, Download,
   Unlock, BookOpen, MessageCircle
 } from "lucide-react";
 import { getEventsAction } from "@/app/[user]/actions";
@@ -394,9 +394,6 @@ export default function GhTimeline({
     URL.revokeObjectURL(url);
   };
 
-  const copyCount = async () => {
-    await navigator.clipboard.writeText(String(events.length));
-  };
 
   return (
     <div className="mx-auto max-w-5xl w-full">
@@ -425,12 +422,6 @@ export default function GhTimeline({
             className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center gap-2"
           >
             <Download className="w-4 h-4" />Export JSON
-          </button>
-          <button
-            onClick={copyCount}
-            className="px-3 py-2 rounded-xl bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center gap-2"
-          >
-            <Copy className="w-4 h-4" />Copy count
           </button>
         </div>
       </header>
