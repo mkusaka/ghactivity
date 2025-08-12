@@ -213,14 +213,15 @@ export default function GhTimeline({
       }
       
       const { events: newEvents } = await getEventsAction(user, nextPage);
-      
+
+      // Determine no next page (less than 100 items = end)
       if (newEvents.length === 0) {
         setHasMore(false);
       } else {
         setEvents(prev => [...prev, ...newEvents]);
         setPage(nextPage);
-        // After loading page 3, no more pages available
-        if (nextPage === 3) {
+        // Stop if less than 100 items or after page 3
+        if (newEvents.length < 100 || nextPage === 3) {
           setHasMore(false);
         }
       }
