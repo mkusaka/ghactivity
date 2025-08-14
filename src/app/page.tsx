@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 import { RefreshCw } from "lucide-react";
 
 export default function Home() {
-  const [user, setUser] = useState("mkusaka");
+  const [user, setUser] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
