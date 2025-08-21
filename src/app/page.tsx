@@ -45,9 +45,9 @@ export default function Home() {
           value={user}
           onChange={(e) => setUser(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && user && !isPending) {
+            if (e.key === "Enter" && user.trim() && !isPending) {
               startTransition(() => {
-                router.push(`/${encodeURIComponent(user)}`);
+                router.push(`/${encodeURIComponent(user.trim())}`);
               });
             }
           }}
@@ -66,9 +66,9 @@ export default function Home() {
             ${isPending ? 'opacity-60 cursor-not-allowed' : ''}
           `}
           onClick={() => {
-            if (user && !isPending) {
+            if (user.trim() && !isPending) {
               startTransition(() => {
-                router.push(`/${encodeURIComponent(user)}`);
+                router.push(`/${encodeURIComponent(user.trim())}`);
               });
             }
           }}

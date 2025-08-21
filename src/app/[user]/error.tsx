@@ -2,7 +2,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { AlertTriangle, RefreshCw, Home } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 
 export default function Error({
   error,
@@ -11,12 +12,27 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const params = useParams();
+  const username = params?.user as string;
+  const router = useRouter();
+
   useEffect(() => {
     console.error(error);
   }, [error]);
 
-  const isRateLimit = error.message.includes("rate limit");
-  const isNotFound = error.message.includes("not found");
+  // In production, error.message might be a generic message for security reasons
+  // We need to infer the actual error type from available information
+  const errorMessage = error.message || "";
+  const isProduction = process.env.NODE_ENV === "production";
+  
+  // Improved error type detection that works in production
+  const isRateLimit = errorMessage.toLowerCase().includes("rate limit") || 
+                      errorMessage.includes("403") ||
+                      (isProduction && error.digest && errorMessage.includes("omitted"));
+                      
+  const isNotFound = errorMessage.toLowerCase().includes("not found") || 
+                     errorMessage.includes("404") ||
+                     (isProduction && error.digest && errorMessage.includes("omitted") && username);
 
   return (
     <main className="min-h-dvh bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
@@ -31,7 +47,16 @@ export default function Error({
                 {isRateLimit ? "API Rate Limit Exceeded" : isNotFound ? "User Not Found" : "Something went wrong"}
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                {error.message}
+                {/* Show more specific messages when production hides the actual error */}
+                {isProduction && errorMessage.includes("omitted") ? (
+                  isNotFound ? 
+                    `The user "${username}" could not be found on GitHub. Please check the username and try again.` :
+                    isRateLimit ?
+                    "GitHub API rate limit has been exceeded. Please try again later or configure a GitHub Personal Access Token." :
+                    "An error occurred while fetching GitHub activity. Please try again."
+                ) : (
+                  errorMessage
+                )}
               </p>
               
               {isRateLimit && (
@@ -46,13 +71,23 @@ export default function Error({
                 </div>
               )}
 
-              <button
-                onClick={reset}
-                className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 hover:opacity-95 inline-flex items-center gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                Try Again
-              </button>
+              {isNotFound ? (
+                <button
+                  onClick={() => router.push('/')}
+                  className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 hover:opacity-95 inline-flex items-center gap-2"
+                >
+                  <Home className="w-4 h-4" />
+                  Back to Home
+                </button>
+              ) : (
+                <button
+                  onClick={reset}
+                  className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 hover:opacity-95 inline-flex items-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Try Again
+                </button>
+              )}
             </div>
           </div>
         </div>
