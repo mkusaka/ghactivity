@@ -3,6 +3,7 @@ import { getEventsAction } from "./actions";
 import GhTimeline from "@/components/GhTimeline";
 import { fetchEventsWithEnv } from "./shared";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { Rss } from "lucide-react";
 import type { Metadata } from "next";
 
 export const runtime = "nodejs";
@@ -14,7 +15,7 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
   return (
     <main className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white dark:from-gray-900 dark:to-gray-950 text-neutral-900 dark:text-gray-100">
       <div className="mx-auto max-w-5xl p-6">
-        <div className="mb-4">
+        <div className="mb-4 flex items-center gap-4">
           <a
             href={`https://github.com/${user}`}
             target="_blank"
@@ -23,6 +24,15 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
             aria-label={`Open @${user} on GitHub`}
           >
             View @{user} on GitHub
+          </a>
+          <a
+            href={`/${user}/rss`}
+            className="inline-flex items-center gap-1.5 text-sm text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100"
+            aria-label={`RSS feed for @${user}`}
+            title="Subscribe to RSS feed"
+          >
+            <Rss className="w-4 h-4" />
+            <span>RSS Feed</span>
           </a>
         </div>
         <GhTimeline user={user} initial={events} pollSec={meta.pollInterval ?? 60} />
@@ -49,5 +59,10 @@ export async function generateMetadata({ params }: { params: Promise<{ user: str
     description: desc,
     openGraph: { title, description: desc, type: "website", url: `/${user}` },
     twitter: { card: "summary_large_image", title, description: desc },
+    alternates: {
+      types: {
+        'application/rss+xml': `/${user}/rss`,
+      },
+    },
   };
 }
