@@ -1,17 +1,6 @@
-// src/lib/rss-generator.ts
+// src/lib/rss-generator-feed.ts
+import { Feed } from "feed";
 import type { GithubEvent } from "./github-events-schema";
-
-/**
- * Escape XML special characters
- */
-function escapeXml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
 
 /**
  * Format GitHub event type to human-readable string
@@ -44,7 +33,7 @@ function generateEventDescription(event: GithubEvent): string {
         const commitMessages = commits
           .map((c: unknown) => {
             const commit = c as { message?: string };
-            return `• ${escapeXml(commit.message || "No message")}`;
+            return `• ${commit.message || "No message"}`;
           })
           .join("<br/>");
         description += `<br/><br/>Recent commits:<br/>${commitMessages}`;
@@ -54,14 +43,14 @@ function generateEventDescription(event: GithubEvent): string {
     case "IssuesEvent":
       if (event.payload?.action && event.payload?.issue) {
         const issue = event.payload.issue as { number?: number; title?: string };
-        description = `${actor} ${event.payload.action} issue #${issue.number}: "${escapeXml(issue.title || "")}" in ${repo}`;
+        description = `${actor} ${event.payload.action} issue #${issue.number}: "${issue.title || ""}" in ${repo}`;
       }
       break;
       
     case "PullRequestEvent":
       if (event.payload?.action && event.payload?.pull_request) {
         const pr = event.payload.pull_request as { number?: number; title?: string };
-        description = `${actor} ${event.payload.action} pull request #${pr.number}: "${escapeXml(pr.title || "")}" in ${repo}`;
+        description = `${actor} ${event.payload.action} pull request #${pr.number}: "${pr.title || ""}" in ${repo}`;
       }
       break;
       
@@ -98,7 +87,7 @@ function generateEventDescription(event: GithubEvent): string {
     case "ReleaseEvent":
       if (event.payload?.release) {
         const release = event.payload.release as { name?: string; tag_name?: string };
-        description = `${actor} ${event.payload.action || "published"} release "${escapeXml(release.name || release.tag_name || "")}" in ${repo}`;
+        description = `${actor} ${event.payload.action || "published"} release "${release.name || release.tag_name || ""}" in ${repo}`;
       }
       break;
   }
@@ -107,7 +96,7 @@ function generateEventDescription(event: GithubEvent): string {
 }
 
 /**
- * Generate RSS feed from GitHub events
+ * Generate RSS feed from GitHub events using the feed package
  */
 export async function generateRssFeed(username: string, events: GithubEvent[]): Promise<string> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ghactivity.com";
@@ -119,20 +108,32 @@ export async function generateRssFeed(username: string, events: GithubEvent[]): 
     ? new Date(events[0].created_at)
     : new Date();
   
-  // RSS header
-  let rss = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>${escapeXml(username)}'s GitHub Activity</title>
-    <description>Recent GitHub activity for ${escapeXml(username)}</description>
-    <link>${githubUrl}</link>
-    <atom:link href="${feedUrl}" rel="self" type="application/rss+xml" />
-    <language>en-us</language>
-    <lastBuildDate>${latestDate.toUTCString()}</lastBuildDate>
-    <generator>GitHub Activity RSS</generator>`;
+  // Create feed instance
+  const feed = new Feed({
+    title: `${username}'s GitHub Activity`,
+    description: `Recent GitHub activity for ${username}`,
+    id: feedUrl,
+    link: githubUrl,
+    language: "en",
+    image: `https://github.com/${username}.png`,
+    favicon: `${siteUrl}/favicon.ico`,
+    copyright: `All rights reserved ${new Date().getFullYear()}, ${username}`,
+    updated: latestDate,
+    generator: "GitHub Activity RSS",
+    feedLinks: {
+      rss: feedUrl,
+      json: `${siteUrl}/${username}/json`,
+      atom: `${siteUrl}/${username}/atom`,
+    },
+    author: {
+      name: username,
+      link: githubUrl,
+    },
+    ttl: 60, // 60 minutes
+  });
   
-  // Add RSS items for each event
-  for (const event of events.slice(0, 100)) { // Use all 100 events from API
+  // Add items for each event (limit to 100 most recent)
+  for (const event of events.slice(0, 100)) {
     const eventDate = event.created_at ? new Date(event.created_at) : new Date();
     const eventTitle = formatEventType(event.type);
     const repoName = event.repo?.name || "unknown";
@@ -142,21 +143,27 @@ export async function generateRssFeed(username: string, events: GithubEvent[]): 
     
     const description = generateEventDescription(event);
     
-    rss += `
-    <item>
-      <title>${escapeXml(eventTitle)} in ${escapeXml(repoName)}</title>
-      <description><![CDATA[${description}]]></description>
-      <link>${eventUrl}</link>
-      <guid isPermaLink="false">${event.id}</guid>
-      <pubDate>${eventDate.toUTCString()}</pubDate>
-      <author>${escapeXml(username)}@github.com</author>
-    </item>`;
+    feed.addItem({
+      title: `${eventTitle} in ${repoName}`,
+      id: event.id,
+      link: eventUrl,
+      description: description,
+      content: description,
+      author: [
+        {
+          name: username,
+          link: githubUrl,
+        },
+      ],
+      date: eventDate,
+      category: event.type ? [
+        {
+          name: formatEventType(event.type),
+        },
+      ] : undefined,
+    });
   }
   
-  // Close RSS feed
-  rss += `
-  </channel>
-</rss>`;
-  
-  return rss;
+  // Return RSS 2.0 format
+  return feed.rss2();
 }

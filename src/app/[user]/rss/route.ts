@@ -2,7 +2,8 @@
 import { NextResponse } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { fetchEventsWithEnv } from "../shared";
-import { generateRssFeed } from "@/lib/rss-generator";
+import { generateRssFeed } from "@/lib/rss-generator-feed";
+import crypto from "crypto";
 
 export const runtime = "nodejs";
 
@@ -20,15 +21,37 @@ export async function GET(
     // Generate RSS feed
     const rssFeed = await generateRssFeed(user, events);
     
-    // Return RSS with appropriate headers
+    // Generate ETag for the feed content
+    const etag = `"${crypto.createHash('md5').update(rssFeed).digest('hex')}"`;
+    
+    // Check If-None-Match header for conditional request
+    const ifNoneMatch = request.headers.get('if-none-match');
+    if (ifNoneMatch === etag) {
+      // Return 304 Not Modified if content hasn't changed
+      return new NextResponse(null, {
+        status: 304,
+        headers: {
+          "ETag": etag,
+          "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=14400, stale-if-error=3600",
+          "X-Cache-Status": meta.cache,
+        },
+      });
+    }
+    
+    // Return RSS with optimized cache headers
     return new NextResponse(rssFeed, {
       status: 200,
       headers: {
         "Content-Type": "application/rss+xml; charset=utf-8",
+        "ETag": etag,
+        "Last-Modified": new Date().toUTCString(),
         "Cache-Control": meta.cache === "HIT" 
-          ? "public, max-age=300, s-maxage=300, stale-while-revalidate=60"
-          : "public, max-age=60, s-maxage=60, stale-while-revalidate=30",
+          ? "public, max-age=0, s-maxage=3600, stale-while-revalidate=14400, stale-if-error=3600"
+          // Browser: always revalidate, CDN: 1 hour, serve stale: 4 hours
+          : "public, max-age=0, s-maxage=600, stale-while-revalidate=3600, stale-if-error=600",
+          // Browser: always revalidate, CDN: 10 min, serve stale: 1 hour
         "X-Cache-Status": meta.cache,
+        "Vary": "Accept",
       },
     });
   } catch (error) {
