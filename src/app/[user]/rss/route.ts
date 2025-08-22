@@ -15,14 +15,25 @@ export async function GET(
     const { user } = await context.params;
     const { env } = getCloudflareContext();
     
+    // Parse URL query parameters for event type filtering
+    const url = new URL(request.url);
+    const typeParam = url.searchParams.get('type');
+    const eventTypes = typeParam ? typeParam.split(',').map(t => t.trim()) : null;
+    
     // Fetch user's GitHub events
     const { events, meta } = await fetchEventsWithEnv(env, user);
     
-    // Generate RSS feed
-    const rssFeed = await generateRssFeed(user, events);
+    // Filter events by type if specified
+    const filteredEvents = eventTypes 
+      ? events.filter(event => eventTypes.includes(event.type))
+      : events;
     
-    // Generate ETag for the feed content
-    const etag = `"${crypto.createHash('md5').update(rssFeed).digest('hex')}"`;
+    // Generate RSS feed
+    const rssFeed = await generateRssFeed(user, filteredEvents);
+    
+    // Generate ETag for the feed content (include filter params in hash)
+    const etagContent = rssFeed + (typeParam || '');
+    const etag = `"${crypto.createHash('md5').update(etagContent).digest('hex')}"`;
     
     // Check If-None-Match header for conditional request
     const ifNoneMatch = request.headers.get('if-none-match');
