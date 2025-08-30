@@ -2,6 +2,13 @@
 import { Feed } from "feed";
 import type { GithubEvent } from "./github-events-schema";
 
+function escapeHtml(s: string): string {
+  return s
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
 /**
  * Format GitHub event type to human-readable string
  */
@@ -49,8 +56,13 @@ function generateEventDescription(event: GithubEvent): string {
       
     case "PullRequestEvent":
       if (event.payload?.action && event.payload?.pull_request) {
-        const pr = event.payload.pull_request as { number?: number; title?: string };
+        const pr = event.payload.pull_request as { number?: number; title?: string; body?: string | null };
         description = `${actor} ${event.payload.action} pull request #${pr.number}: "${pr.title || ""}" in ${repo}`;
+        if (pr.body) {
+          const text = escapeHtml(pr.body);
+          const short = text.length > 500 ? `${text.slice(0, 500)}…` : text;
+          description += `<br/><br/>Description:<br/>${short.replaceAll("\n", "<br/>")}`;
+        }
       }
       break;
       
