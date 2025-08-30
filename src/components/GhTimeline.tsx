@@ -670,9 +670,11 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
   const isIssueCmt = isIssueCommentEvent(ev);
   const isCommitCmt = isCommitCommentEvent(ev);
   const isPrReviewCmt = isPullRequestReviewCommentEvent(ev);
+  const isPrEvent = isPullRequestEvent(ev);
   const issueCommentBody = isIssueCmt ? (ev.payload.comment?.body || "") : "";
   const commitCommentBody = isCommitCmt ? (ev.payload.comment?.body || "") : "";
   const prReviewCommentBody = isPrReviewCmt ? (ev.payload.comment?.body || "") : "";
+  const prBody = isPrEvent ? (ev.payload.pull_request?.body || "") : "";
 
   return (
     <li className="mb-6">
@@ -737,6 +739,31 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
             ) : (
               <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
                 {issueCommentBody}
+              </div>
+            )}
+          </div>
+        )}
+
+        {isPrEvent && prBody && (
+          <div className="pl-6">
+            {prBody.length > 320 ? (
+              <div className="mt-1">
+                <button onClick={() => setOpen(v => !v)} className="inline-flex items-center gap-1 text-xs text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100">
+                  {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} description
+                </button>
+                <AnimatePresence>
+                  {open && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                      <div className="mt-2 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
+                        {prBody}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
+                {prBody}
               </div>
             )}
           </div>
