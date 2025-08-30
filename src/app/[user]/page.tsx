@@ -3,7 +3,6 @@ import { getEventsAction } from "./actions";
 import GhTimeline from "@/components/GhTimeline";
 import { fetchEventsWithEnv } from "./shared";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { Rss } from "lucide-react";
 import RssLink from "@/components/RssLink";
 import type { Metadata } from "next";
 
