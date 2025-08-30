@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
   MessageSquare, GitBranch, GitMerge, Trash2, Users, Eye, Clock,
-  RefreshCw, ChevronDown, ChevronRight, Link2, AlertTriangle, Download,
+  RefreshCw, ChevronDown, ChevronRight, Link2, AlertTriangle, Download, Github,
   Unlock, BookOpen, MessageCircle
 } from "lucide-react";
 import { getEventsAction } from "@/app/[user]/actions";
@@ -516,6 +516,15 @@ export default function GhTimeline({
           >
             <Download className="w-4 h-4" />Export JSON
           </button>
+          <a
+            href={`https://github.com/${user}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`Open @${user} on GitHub`}
+            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800/50 text-neutral-700 dark:text-gray-100 border border-neutral-200 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-800 inline-flex items-center gap-2 transition-all duration-200"
+          >
+            <Github className="w-4 h-4" />View @{user} on GitHub
+          </a>
         </div>
       </header>
 

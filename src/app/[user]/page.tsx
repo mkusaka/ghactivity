@@ -21,18 +21,7 @@ export default async function UserPage({ params, searchParams }: { params: Promi
   return (
     <main className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white dark:from-gray-900 dark:to-gray-950 text-neutral-900 dark:text-gray-100">
       <div className="mx-auto max-w-5xl p-6">
-        <div className="mb-4 flex items-center gap-4">
-          <a
-            href={`https://github.com/${user}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100 underline underline-offset-2"
-            aria-label={`Open @${user} on GitHub`}
-          >
-            View @{user} on GitHub
-          </a>
-          
-        </div>
+        {/** moved GitHub profile link into GhTimeline header as a button */}
         <GhTimeline user={user} initial={filteredInitial} initialTypes={initialTypes} pollSec={meta.pollInterval ?? 60} />
       </div>
     </main>
