@@ -488,7 +488,7 @@ export default function GhTimeline({
           <p className="text-sm text-neutral-600 dark:text-gray-400">Timeline of public (or authorized) events.</p>
         </div>
         <div className="flex gap-2 items-center">
-          {/* Dynamic RSS link reflecting current filter */}
+          
           {(() => {
             const list = Array.from(allowed).sort().join(',');
             const rssHref = list ? `/${user}/rss?type=${encodeURIComponent(list)}` : `/${user}/rss`;

@@ -31,7 +31,7 @@ export default async function UserPage({ params, searchParams }: { params: Promi
           >
             View @{user} on GitHub
           </a>
-          {/* RSS link is now rendered inside GhTimeline to reflect live filters */}
+          
         </div>
         <GhTimeline user={user} initial={filteredInitial} initialTypes={initialTypes} pollSec={meta.pollInterval ?? 60} />
       </div>
