@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition, useRef, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
@@ -243,20 +244,40 @@ function eventIconAndText(ev: GithubEvent) {
 export default function GhTimeline({
   user,
   initial,
+  initialTypes = [],
   pollSec = 60,
 }: {
   user: string;
   initial: GithubEvent[];
+  initialTypes?: string[];
   pollSec?: number;
 }) {
   const [events, setEvents] = useState<GithubEvent[]>(initial);
-  const [allowed, setAllowed] = useState<Set<string>>(new Set());
+  // Initialize from server-provided initialTypes
+  const [allowed, setAllowed] = useState<Set<string>>(() => new Set(initialTypes));
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const sp = useSearchParams();
+
+  // Sync allowed set to URL query (?type=...) without triggering a navigation
+  useEffect(() => {
+    const params = new URLSearchParams(sp?.toString());
+    if (allowed.size === 0) {
+      params.delete('type');
+    } else {
+      const list = Array.from(allowed).sort().join(',');
+      params.set('type', list);
+    }
+    const q = params.toString();
+    const newUrl = q ? `${window.location.pathname}?${q}` : window.location.pathname;
+    if (newUrl !== window.location.pathname + (window.location.search ? `?${window.location.search.slice(1)}` : '')) {
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, [allowed, sp]);
 
   // Load more events (GitHub API limits to 300 events total)
   const loadMore = useCallback(async () => {
@@ -467,6 +488,20 @@ export default function GhTimeline({
           <p className="text-sm text-neutral-600 dark:text-gray-400">Timeline of public (or authorized) events.</p>
         </div>
         <div className="flex gap-2 items-center">
+          
+          {(() => {
+            const list = Array.from(allowed).sort().join(',');
+            const rssHref = list ? `/${user}/rss?type=${encodeURIComponent(list)}` : `/${user}/rss`;
+            return (
+              <a
+                href={rssHref}
+                className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800/50 text-neutral-700 dark:text-gray-100 border border-neutral-200 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-800 inline-flex items-center gap-2 transition-all duration-200"
+                title="Subscribe to RSS feed"
+              >
+                RSS Feed
+              </a>
+            );
+          })()}
           <button
             onClick={onRefresh}
             disabled={isPending}
