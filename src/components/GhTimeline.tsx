@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition, useRef, useCallback } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
@@ -243,10 +244,12 @@ function eventIconAndText(ev: GithubEvent) {
 export default function GhTimeline({
   user,
   initial,
+  initialTypes = [],
   pollSec = 60,
 }: {
   user: string;
   initial: GithubEvent[];
+  initialTypes?: string[];
   pollSec?: number;
 }) {
   const [events, setEvents] = useState<GithubEvent[]>(initial);
@@ -257,6 +260,31 @@ export default function GhTimeline({
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const sp = useSearchParams();
+
+  // Initialize allowed types from URL (server-provided)
+  useEffect(() => {
+    if (initialTypes && initialTypes.length > 0) {
+      setAllowed(new Set(initialTypes));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync allowed set to URL query (?type=...)
+  useEffect(() => {
+    const next = new URLSearchParams(sp?.toString());
+    if (allowed.size === 0) {
+      next.delete('type');
+    } else {
+      const list = Array.from(allowed).sort().join(',');
+      next.set('type', list);
+    }
+    const q = next.toString();
+    const url = q ? `${pathname}?${q}` : pathname;
+    router.replace(url, { scroll: false });
+  }, [allowed, pathname, router, sp]);
 
   // Load more events (GitHub API limits to 300 events total)
   const loadMore = useCallback(async () => {
