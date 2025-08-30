@@ -176,7 +176,29 @@ function eventIconAndText(ev: GithubEvent) {
   }
   
   if (isCommitCommentEvent(ev)) {
-    return { icon: <MessageCircle className="w-4 h-4" />, color: "bg-violet-500/15 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400", title: "commented on a commit", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+    const c = ev.payload.comment;
+    const sha = c?.commit_id || "";
+    const short = sha ? sha.slice(0, 7) : "";
+    return { 
+      icon: <MessageCircle className="w-4 h-4" />, 
+      color: "bg-violet-500/15 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400", 
+      title: "commented on a commit", 
+      desc: (
+        <span>
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>
+          {sha ? (
+            <>
+              {' '}— <a className="link" href={`${urlRepo}/commit/${sha}`} target="_blank" rel="noreferrer">{short}</a>
+            </>
+          ) : null}
+          {c?.html_url ? (
+            <>
+              {' '}— <a className="link" href={c.html_url} target="_blank" rel="noreferrer">comment</a>
+            </>
+          ) : null}
+        </span>
+      ) 
+    };
   }
   
   if (isGollumEvent(ev)) {
@@ -186,7 +208,23 @@ function eventIconAndText(ev: GithubEvent) {
   }
   
   if (isPullRequestReviewCommentEvent(ev)) {
-    return { icon: <MessageCircle className="w-4 h-4" />, color: "bg-pink-500/15 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400", title: "commented on PR review", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+    const pr = ev.payload.pull_request;
+    const c = ev.payload.comment;
+    return { 
+      icon: <MessageCircle className="w-4 h-4" />, 
+      color: "bg-pink-500/15 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400", 
+      title: "commented on a pull request",
+      desc: (
+        <span>
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={pr?.html_url} target="_blank" rel="noreferrer">#{pr?.number}</a> {pr?.title ? `: ${pr.title}` : ""}
+          {c?.html_url ? (
+            <>
+              {' '}— <a className="link" href={c.html_url} target="_blank" rel="noreferrer">comment</a>
+            </>
+          ) : null}
+        </span>
+      ) 
+    };
   }
   
   if (isPullRequestReviewThreadEvent(ev)) {
@@ -586,7 +624,11 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
   const [open, setOpen] = useState(false);
   const commits = isPushEvent(ev) ? (ev.payload.commits || []) : [];
   const isIssueCmt = isIssueCommentEvent(ev);
+  const isCommitCmt = isCommitCommentEvent(ev);
+  const isPrReviewCmt = isPullRequestReviewCommentEvent(ev);
   const issueCommentBody = isIssueCmt ? (ev.payload.comment?.body || "") : "";
+  const commitCommentBody = isCommitCmt ? (ev.payload.comment?.body || "") : "";
+  const prReviewCommentBody = isPrReviewCmt ? (ev.payload.comment?.body || "") : "";
 
   return (
     <li className="mb-6">
@@ -651,6 +693,56 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
             ) : (
               <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
                 {issueCommentBody}
+              </div>
+            )}
+          </div>
+        )}
+
+        {isCommitCmt && commitCommentBody && (
+          <div className="pl-6">
+            {commitCommentBody.length > 320 ? (
+              <div className="mt-1">
+                <button onClick={() => setOpen(v => !v)} className="inline-flex items-center gap-1 text-xs text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100">
+                  {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} comment
+                </button>
+                <AnimatePresence>
+                  {open && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                      <div className="mt-2 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
+                        {commitCommentBody}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
+                {commitCommentBody}
+              </div>
+            )}
+          </div>
+        )}
+
+        {isPrReviewCmt && prReviewCommentBody && (
+          <div className="pl-6">
+            {prReviewCommentBody.length > 320 ? (
+              <div className="mt-1">
+                <button onClick={() => setOpen(v => !v)} className="inline-flex items-center gap-1 text-xs text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100">
+                  {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} comment
+                </button>
+                <AnimatePresence>
+                  {open && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                      <div className="mt-2 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
+                        {prReviewCommentBody}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
+                {prReviewCommentBody}
               </div>
             )}
           </div>
