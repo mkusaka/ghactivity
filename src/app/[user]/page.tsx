@@ -21,7 +21,6 @@ export default async function UserPage({ params, searchParams }: { params: Promi
   return (
     <main className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white dark:from-gray-900 dark:to-gray-950 text-neutral-900 dark:text-gray-100">
       <div className="mx-auto max-w-5xl p-6">
-        {/** moved GitHub profile link into GhTimeline header as a button */}
         <GhTimeline user={user} initial={filteredInitial} initialTypes={initialTypes} pollSec={meta.pollInterval ?? 60} />
       </div>
     </main>
