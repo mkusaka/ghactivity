@@ -3,7 +3,6 @@ import { getEventsAction } from "./actions";
 import GhTimeline from "@/components/GhTimeline";
 import { fetchEventsWithEnv } from "./shared";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import RssLink from "@/components/RssLink";
 import type { Metadata } from "next";
 
 export const runtime = "nodejs";
@@ -32,7 +31,7 @@ export default async function UserPage({ params, searchParams }: { params: Promi
           >
             View @{user} on GitHub
           </a>
-          <RssLink user={user} />
+          {/* RSS link is now rendered inside GhTimeline to reflect live filters */}
         </div>
         <GhTimeline user={user} initial={filteredInitial} initialTypes={initialTypes} pollSec={meta.pollInterval ?? 60} />
       </div>

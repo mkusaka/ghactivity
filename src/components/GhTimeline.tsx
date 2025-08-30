@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useTransition, useRef, useCallback } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
@@ -253,40 +253,31 @@ export default function GhTimeline({
   pollSec?: number;
 }) {
   const [events, setEvents] = useState<GithubEvent[]>(initial);
-  const [allowed, setAllowed] = useState<Set<string>>(new Set());
+  // Initialize from server-provided initialTypes
+  const [allowed, setAllowed] = useState<Set<string>>(() => new Set(initialTypes));
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-  const pathname = usePathname();
   const sp = useSearchParams();
 
-  // Initialize allowed types from URL (server-provided)
+  // Sync allowed set to URL query (?type=...) without triggering a navigation
   useEffect(() => {
-    if (initialTypes && initialTypes.length > 0) {
-      setAllowed(new Set(initialTypes));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Sync allowed set to URL query (?type=...)
-  useEffect(() => {
-    const next = new URLSearchParams(sp?.toString());
+    const params = new URLSearchParams(sp?.toString());
     if (allowed.size === 0) {
-      next.delete('type');
+      params.delete('type');
     } else {
       const list = Array.from(allowed).sort().join(',');
-      next.set('type', list);
+      params.set('type', list);
     }
-    const q = next.toString();
-    // Canonicalize to /{user} so that alias routes like /{user}/t/... redirect to base
-    const base = `/${user}`;
-    const url = q ? `${base}?${q}` : base;
-    router.replace(url, { scroll: false });
-  }, [allowed, pathname, router, sp]);
+    const q = params.toString();
+    const newUrl = q ? `${window.location.pathname}?${q}` : window.location.pathname;
+    if (newUrl !== window.location.pathname + (window.location.search ? `?${window.location.search.slice(1)}` : '')) {
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, [allowed, sp]);
 
   // Load more events (GitHub API limits to 300 events total)
   const loadMore = useCallback(async () => {
@@ -497,6 +488,20 @@ export default function GhTimeline({
           <p className="text-sm text-neutral-600 dark:text-gray-400">Timeline of public (or authorized) events.</p>
         </div>
         <div className="flex gap-2 items-center">
+          {/* Dynamic RSS link reflecting current filter */}
+          {(() => {
+            const list = Array.from(allowed).sort().join(',');
+            const rssHref = list ? `/${user}/rss?type=${encodeURIComponent(list)}` : `/${user}/rss`;
+            return (
+              <a
+                href={rssHref}
+                className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800/50 text-neutral-700 dark:text-gray-100 border border-neutral-200 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-800 inline-flex items-center gap-2 transition-all duration-200"
+                title="Subscribe to RSS feed"
+              >
+                RSS Feed
+              </a>
+            );
+          })()}
           <button
             onClick={onRefresh}
             disabled={isPending}
