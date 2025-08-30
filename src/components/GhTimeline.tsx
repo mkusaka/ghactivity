@@ -95,7 +95,29 @@ function eventIconAndText(ev: GithubEvent) {
   }
   
   if (isIssueCommentEvent(ev)) {
-    return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-sky-500/15 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400", title: "commented on an issue", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
+    const issue = ev.payload.issue;
+    const comment = ev.payload.comment;
+    const action = ev.payload.action; // created | edited | deleted
+    const isPR = !!issue?.pull_request;
+    const actionText = action === 'edited' 
+      ? 'edited a comment' 
+      : action === 'deleted' 
+        ? 'deleted a comment' 
+        : 'commented';
+    const title = `${actionText} on ${isPR ? 'a pull request' : 'an issue'}`;
+    return {
+      icon: <MessageSquare className="w-4 h-4" />, 
+      color: "bg-sky-500/15 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400", 
+      title,
+      desc: (
+        <span>
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={issue?.html_url} target="_blank" rel="noreferrer">#{issue?.number}</a> {issue?.title ? `: ${issue.title}` : ""}
+          {comment?.html_url ? (<>
+            {' '}— <a className="link" href={comment.html_url} target="_blank" rel="noreferrer">comment</a>
+          </>) : null}
+        </span>
+      )
+    };
   }
   
   if (isPullRequestReviewEvent(ev)) {
@@ -563,6 +585,8 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
   const meta = eventIconAndText(ev);
   const [open, setOpen] = useState(false);
   const commits = isPushEvent(ev) ? (ev.payload.commits || []) : [];
+  const isIssueCmt = isIssueCommentEvent(ev);
+  const issueCommentBody = isIssueCmt ? (ev.payload.comment?.body || "") : "";
 
   return (
     <li className="mb-6">
@@ -604,6 +628,31 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
                 </motion.div>
               )}
             </AnimatePresence>
+          </div>
+        )}
+
+        {isIssueCmt && ev.payload.action !== 'deleted' && issueCommentBody && (
+          <div className="pl-6">
+            {issueCommentBody.length > 320 ? (
+              <div className="mt-1">
+                <button onClick={() => setOpen(v => !v)} className="inline-flex items-center gap-1 text-xs text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100">
+                  {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} comment
+                </button>
+                <AnimatePresence>
+                  {open && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+                      <div className="mt-2 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
+                        {issueCommentBody}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
+                {issueCommentBody}
+              </div>
+            )}
           </div>
         )}
       </div>
