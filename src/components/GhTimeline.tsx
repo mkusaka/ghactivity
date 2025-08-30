@@ -282,7 +282,9 @@ export default function GhTimeline({
       next.set('type', list);
     }
     const q = next.toString();
-    const url = q ? `${pathname}?${q}` : pathname;
+    // Canonicalize to /{user} so that alias routes like /{user}/t/... redirect to base
+    const base = `/${user}`;
+    const url = q ? `${base}?${q}` : base;
     router.replace(url, { scroll: false });
   }, [allowed, pathname, router, sp]);
 
