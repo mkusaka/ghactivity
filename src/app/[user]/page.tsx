@@ -4,6 +4,7 @@ import GhTimeline from "@/components/GhTimeline";
 import { fetchEventsWithEnv } from "./shared";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { Rss } from "lucide-react";
+import RssLink from "@/components/RssLink";
 import type { Metadata } from "next";
 
 export const runtime = "nodejs";
@@ -32,15 +33,7 @@ export default async function UserPage({ params, searchParams }: { params: Promi
           >
             View @{user} on GitHub
           </a>
-          <a
-            href={`/${user}/rss${typeParam ? `?type=${encodeURIComponent(typeParam)}` : ''}`}
-            className="inline-flex items-center gap-1.5 text-sm text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100"
-            aria-label={`RSS feed for @${user}`}
-            title="Subscribe to RSS feed"
-          >
-            <Rss className="w-4 h-4" />
-            <span>RSS Feed</span>
-          </a>
+          <RssLink user={user} />
         </div>
         <GhTimeline user={user} initial={filteredInitial} initialTypes={initialTypes} pollSec={meta.pollInterval ?? 60} />
       </div>
