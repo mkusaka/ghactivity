@@ -7,6 +7,9 @@
 	"name": "ghactivity",
 	"account_id": "7329283460e5efe7b1e75190a87dfdd4",
 	"main": ".open-next/worker.js",
+	"build": {
+		"command": "pnpm opennextjs-cloudflare build"
+	},
 	"compatibility_date": "2025-03-01",
 	"compatibility_flags": [
 		"nodejs_compat",
