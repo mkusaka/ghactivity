@@ -61,10 +61,10 @@ importers:
         specifier: ^20.19.10
         version: 20.19.11
       '@types/react':
-        specifier: ^19
+        specifier: 19.1.12
         version: 19.1.12
       '@types/react-dom':
-        specifier: ^19
+        specifier: 19.1.9
         version: 19.1.9(@types/react@19.1.12)
       eslint:
         specifier: ^9
