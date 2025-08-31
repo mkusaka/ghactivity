@@ -14,14 +14,11 @@ export default async function UserPage({ params, searchParams }: { params: Promi
   const initialTypes = typeParam ? typeParam.split(',').map(s => s.trim()).filter(Boolean) : [];
 
   const { events, meta } = await getEventsAction(user);
-  const filteredInitial = initialTypes.length > 0
-    ? events.filter(e => e.type && initialTypes.includes(e.type))
-    : events;
 
   return (
     <main className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white dark:from-gray-900 dark:to-gray-950 text-neutral-900 dark:text-gray-100">
       <div className="mx-auto max-w-5xl p-6">
-        <GhTimeline user={user} initial={filteredInitial} initialTypes={initialTypes} pollSec={meta.pollInterval ?? 60} />
+        <GhTimeline user={user} initial={events} initialTypes={initialTypes} pollSec={meta.pollInterval ?? 60} />
       </div>
     </main>
   );
