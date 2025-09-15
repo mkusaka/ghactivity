@@ -46,7 +46,7 @@ importers:
         version: 7.5.2
       zod:
         specifier: ^4.0.17
-        version: 4.1.5
+        version: 4.1.8
     devDependencies:
       '@eslint/eslintrc':
         specifier: 3.3.1
@@ -4631,8 +4631,8 @@ packages:
   zod@3.22.3:
     resolution: {integrity: sha512-EjIevzuJRiRPbVH4mGc8nApb/lVLKVpmUhAaR5R5doKGfAnGJ6Gr3CViAVjP+4FWSxCsybeWQdcgCtbX+7oZug==}
 
-  zod@4.1.5:
-    resolution: {integrity: sha512-rcUUZqlLJgBC33IT3PNMgsCq6TzLQEG/Ei/KTCU0PedSWRMAXoOUN+4t/0H+Q8bdnLPdqUYnvboJT0bn/229qg==}
+  zod@4.1.8:
+    resolution: {integrity: sha512-5R1P+WwQqmmMIEACyzSvo4JXHY5WiAFHRMg+zBZKgKS+Q1viRa0C1hmUKtHltoIFKtIdki3pRxkmpP74jnNYHQ==}
 
 snapshots:
 
@@ -10426,4 +10426,4 @@ snapshots:
 
   zod@3.22.3: {}
 
-  zod@4.1.5: {}
+  zod@4.1.8: {}
