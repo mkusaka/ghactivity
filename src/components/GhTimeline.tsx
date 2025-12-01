@@ -46,12 +46,15 @@ function eventIconAndText(ev: GithubEvent) {
 
   if (isPushEvent(ev)) {
     const commits = ev.payload.commits || [];
-    const count = commits.length;
+    const count = ev.payload.size ?? ev.payload.distinct_size ?? commits.length;
     const ref = ev.payload.ref;
     const branch = ref?.startsWith("refs/heads/") ? ref.replace("refs/heads/", "") : ref;
+    const title = count > 0
+      ? `pushed ${count} commit${count !== 1 ? "s" : ""}`
+      : "pushed";
     return {
       icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400",
-      title: `pushed ${count} commit${count !== 1 ? "s" : ""}`,
+      title,
       desc: (
         <span>
           to <a className="link" href={`${urlRepo}/tree/${branch || "main"}`} target="_blank" rel="noreferrer">
