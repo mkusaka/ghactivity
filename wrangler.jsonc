@@ -33,8 +33,7 @@
 
 	// Environment variables (actual secrets are set via wrangler secret)
 	"vars": {
-		"NEXTJS_ENV": "production",
-		"GITHUB_PAT": ""
+		"NEXTJS_ENV": "production"
 	}
 
 	/**
