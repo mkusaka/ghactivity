@@ -1,4 +1,5 @@
 // src/app/[user]/shared.ts
+import "server-only";
 import { Octokit } from "@octokit/rest";
 import { safeParseGithubEvents, type GithubEvent } from "@/lib/github-events-schema";
 
