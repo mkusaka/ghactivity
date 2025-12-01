@@ -47,12 +47,18 @@ function eventIconAndText(ev: GithubEvent) {
   if (isPushEvent(ev)) {
     const ref = ev.payload.ref;
     const branch = ref?.startsWith("refs/heads/") ? ref.replace("refs/heads/", "") : ref;
+    const head = ev.payload.head;
+    const shortSha = head?.slice(0, 7);
     return {
       icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400",
       title: "pushed",
       desc: (
         <span>
-          to <a className="link" href={`${urlRepo}/tree/${branch || "main"}`} target="_blank" rel="noreferrer">
+          <a className="link font-mono text-xs" href={`${urlRepo}/commit/${head}`} target="_blank" rel="noreferrer">
+            {shortSha}
+          </a>
+          {" to "}
+          <a className="link" href={`${urlRepo}/tree/${branch || "main"}`} target="_blank" rel="noreferrer">
             {repo}{branch ? `@${branch}` : ""}
           </a>
         </span>
