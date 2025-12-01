@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import * as Sentry from "@sentry/nextjs";
 import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
@@ -14,20 +13,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export function generateMetadata(): Metadata {
-  return {
-    title: "GitHub Recent Activity",
-    description: "Timeline view of a user's recent GitHub events.",
-    metadataBase: new URL("https://ghactivity.polyfill.workers.dev"),
-    icons: {
-      icon: '/icon.svg',
-      apple: '/apple-icon.png',
-    },
-    other: {
-      ...Sentry.getTraceData(),
-    },
-  };
-}
+export const metadata: Metadata = {
+  title: "GitHub Recent Activity",
+  description: "Timeline view of a user's recent GitHub events.",
+  metadataBase: new URL("https://ghactivity.polyfill.workers.dev"),
+  icons: {
+    icon: '/icon.svg',
+    apple: '/apple-icon.png',
+  },
+};
 
 export default function RootLayout({
   children,

@@ -29,7 +29,13 @@
 			"binding": "GHACTIVITY_KV",
 			"id": "0d3b78c7dbc147a6846e786fc6c1384f"
 		}
-	]
+	],
+
+	// Environment variables (actual secrets are set via wrangler secret)
+	"vars": {
+		"NEXTJS_ENV": "production",
+		"GITHUB_PAT": ""
+	}
 
 	/**
 	 * Smart Placement
