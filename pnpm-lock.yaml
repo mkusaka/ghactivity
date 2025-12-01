@@ -42,9 +42,6 @@ importers:
         specifier: ^4.0.17
         version: 4.1.13
     devDependencies:
-      '@eslint/eslintrc':
-        specifier: 3.3.3
-        version: 3.3.3
       '@octokit/openapi-types':
         specifier: 27.0.0
         version: 27.0.0
