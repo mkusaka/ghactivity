@@ -45,16 +45,11 @@ function eventIconAndText(ev: GithubEvent) {
   const urlRepo = `https://github.com/${repo}`;
 
   if (isPushEvent(ev)) {
-    const commits = ev.payload.commits || [];
-    const count = ev.payload.size ?? ev.payload.distinct_size ?? commits.length;
     const ref = ev.payload.ref;
     const branch = ref?.startsWith("refs/heads/") ? ref.replace("refs/heads/", "") : ref;
-    const title = count > 0
-      ? `pushed ${count} commit${count !== 1 ? "s" : ""}`
-      : "pushed";
     return {
       icon: <GitCommit className="w-4 h-4" />, color: "bg-blue-500/15 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400",
-      title,
+      title: "pushed",
       desc: (
         <span>
           to <a className="link" href={`${urlRepo}/tree/${branch || "main"}`} target="_blank" rel="noreferrer">
@@ -62,7 +57,6 @@ function eventIconAndText(ev: GithubEvent) {
           </a>
         </span>
       ),
-      extra: commits.map(c => ({ sha: c.sha, msg: c.message })),
     };
   }
   
@@ -424,11 +418,11 @@ export default function GhTimeline({
   }, [filtered]);
 
   const counters = useMemo(() => {
-    const c = { commits: 0, prsOpened: 0, prsMerged: 0, issuesOpened: 0, issuesClosed: 0, reviews: 0, stars: 0, forks: 0, releases: 0 };
+    const c = { pushes: 0, prsOpened: 0, prsMerged: 0, issuesOpened: 0, issuesClosed: 0, reviews: 0, stars: 0, forks: 0, releases: 0 };
     // Always calculate from all events, not filtered ones
     for (const e of events) {
       if (isPushEvent(e)) {
-        c.commits += e.payload.commits?.length || 0;
+        c.pushes++;
       } else if (isPullRequestEvent(e)) {
         const pr = e.payload.pull_request;
         const action = e.payload.action;
@@ -533,7 +527,7 @@ export default function GhTimeline({
 
       {/* Summary cards: opaque white + ring */}
       <section className={`mt-6 grid gap-3 sm:grid-cols-3 transition-opacity duration-300 ${isPending ? 'opacity-50' : 'opacity-100'}`}>
-        <Stat label="Commits" value={counters.commits} icon={<GitCommit className="w-4 h-4" />} />
+        <Stat label="Pushes" value={counters.pushes} icon={<GitCommit className="w-4 h-4" />} />
         <Stat label="PRs (opened/merged)" value={`${counters.prsOpened}/${counters.prsMerged}`} icon={<GitPullRequest className="w-4 h-4" />} />
         <Stat label="Issues (open/closed)" value={`${counters.issuesOpened}/${counters.issuesClosed}`} icon={<AlertTriangle className="w-4 h-4" />} />
         <Stat label="Reviews" value={counters.reviews} icon={<Eye className="w-4 h-4" />} />
@@ -669,7 +663,6 @@ function FilterPillBar({
 function TimelineItem({ ev }: { ev: GithubEvent }) {
   const meta = eventIconAndText(ev);
   const [open, setOpen] = useState(false);
-  const commits = isPushEvent(ev) ? (ev.payload.commits || []) : [];
   const isIssueCmt = isIssueCommentEvent(ev);
   const isCommitCmt = isCommitCommentEvent(ev);
   const isPrReviewCmt = isPullRequestReviewCommentEvent(ev);
@@ -692,35 +685,6 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
           <a className="link" href={`https://github.com/${ev.actor?.login}`} target="_blank" rel="noreferrer">@{ev.actor?.login}</a>
           <span className="text-neutral-300 dark:text-gray-600">•</span> id: {ev.id}
         </div>
-
-        {isPushEvent(ev) && commits.length > 0 && (
-          <div className="pl-6">
-            <button onClick={() => setOpen(v => !v)} className="mt-1 inline-flex items-center gap-1 text-xs text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100">
-              {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} commits ({commits.length})
-            </button>
-            <AnimatePresence>
-              {open && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                  <ul className="mt-2 space-y-1 text-xs">
-                    {commits.map(c => (
-                      <li key={c.sha} className="rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800">
-                        <a 
-                          href={`https://github.com/${ev.repo?.name}/commit/${c.sha}`} 
-                          target="_blank" 
-                          rel="noreferrer"
-                          className="text-[11px] bg-neutral-100 dark:bg-gray-700 px-1 py-0.5 rounded hover:bg-neutral-200 dark:hover:bg-gray-600"
-                        >
-                          {c.sha.slice(0, 7)}
-                        </a>
-                        <span className="ml-2 whitespace-pre-wrap break-words">{c.message}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        )}
 
         {isIssueCmt && ev.payload.action !== 'deleted' && issueCommentBody && (
           <div className="pl-6">

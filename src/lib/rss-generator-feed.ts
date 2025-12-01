@@ -31,21 +31,11 @@ function generateEventDescription(event: GithubEvent): string {
   
   // Add specific details based on event type
   switch (event.type) {
-    case "PushEvent":
-      if (event.payload?.size) {
-        description += ` (${event.payload.size} commit${event.payload.size > 1 ? "s" : ""})`;
-      }
-      if (event.payload?.commits && Array.isArray(event.payload.commits)) {
-        const commits = event.payload.commits.slice(0, 3);
-        const commitMessages = commits
-          .map((c: unknown) => {
-            const commit = c as { message?: string };
-            return `• ${commit.message || "No message"}`;
-          })
-          .join("<br/>");
-        description += `<br/><br/>Recent commits:<br/>${commitMessages}`;
-      }
+    case "PushEvent": {
+      const branch = event.payload?.ref?.replace("refs/heads/", "") || "unknown";
+      description = `${actor} pushed to ${branch} in ${repo}`;
       break;
+    }
       
     case "IssuesEvent":
       if (event.payload?.action && event.payload?.issue) {

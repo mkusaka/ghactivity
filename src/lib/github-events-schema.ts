@@ -742,29 +742,18 @@ const PullRequestReviewThreadEventPayloadSchema = z.object({
 });
 
 /**
- * PushEvent payload
- * Note: GitHub API may return different fields depending on context.
- * - repository_id is commonly returned
- * - size, distinct_size, commits may be omitted in the public events API
+ * PushEvent payload (Events API)
+ * @see https://docs.github.com/en/rest/using-the-rest-api/github-event-types#pushevent
+ *
+ * Note: This schema is for the Events API, not Webhooks.
+ * Webhook payloads include additional fields like commits, size, distinct_size.
  */
 const PushEventPayloadSchema = z.object({
-  repository_id: z.number().optional(),
-  push_id: z.number().optional(),
-  size: z.number().optional(),
-  distinct_size: z.number().optional(),
+  repository_id: z.number(),
+  push_id: z.number(),
   ref: z.string(),
   head: z.string(),
   before: z.string(),
-  commits: z.array(z.object({
-    sha: z.string(),
-    message: z.string(),
-    author: z.object({
-      name: z.string(),
-      email: z.string(),
-    }),
-    url: z.string(),
-    distinct: z.boolean(),
-  })).optional(),
 });
 
 /**
