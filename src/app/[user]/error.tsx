@@ -5,6 +5,42 @@ import { useEffect } from "react";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
+type ErrorType = "rate_limit" | "not_found" | "schema" | "unknown";
+
+function detectErrorType(message: string): ErrorType {
+  const lowerMessage = message.toLowerCase();
+
+  if (lowerMessage.includes("rate limit") || message.includes("403")) {
+    return "rate_limit";
+  }
+  if (lowerMessage.includes("not found") && message.includes("404")) {
+    return "not_found";
+  }
+  if (message.includes("SCHEMA_ERROR") || lowerMessage.includes("invalid github api response")) {
+    return "schema";
+  }
+  return "unknown";
+}
+
+const ERROR_CONFIG: Record<ErrorType, { title: string; getMessage: (username: string, originalMessage: string) => string }> = {
+  rate_limit: {
+    title: "API Rate Limit Exceeded",
+    getMessage: () => "GitHub API rate limit has been exceeded. Please try again later.",
+  },
+  not_found: {
+    title: "User Not Found",
+    getMessage: (username) => `The user "${username}" could not be found on GitHub. Please check the username and try again.`,
+  },
+  schema: {
+    title: "Data Format Error",
+    getMessage: () => "The GitHub API response format has changed. This is a bug in the application. Please report this issue.",
+  },
+  unknown: {
+    title: "Something went wrong",
+    getMessage: (_, originalMessage) => originalMessage || "An error occurred while fetching GitHub activity. Please try again.",
+  },
+};
+
 export default function Error({
   error,
   reset,
@@ -20,19 +56,9 @@ export default function Error({
     console.error(error);
   }, [error]);
 
-  // In production, error.message might be a generic message for security reasons
-  // We need to infer the actual error type from available information
   const errorMessage = error.message || "";
-  const isProduction = process.env.NODE_ENV === "production";
-  
-  // Improved error type detection that works in production
-  const isRateLimit = errorMessage.toLowerCase().includes("rate limit") || 
-                      errorMessage.includes("403") ||
-                      (isProduction && error.digest && errorMessage.includes("omitted"));
-                      
-  const isNotFound = errorMessage.toLowerCase().includes("not found") || 
-                     errorMessage.includes("404") ||
-                     (isProduction && error.digest && errorMessage.includes("omitted") && username);
+  const errorType = detectErrorType(errorMessage);
+  const config = ERROR_CONFIG[errorType];
 
   return (
     <main className="min-h-dvh bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
@@ -44,34 +70,13 @@ export default function Error({
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                {isRateLimit ? "API Rate Limit Exceeded" : isNotFound ? "User Not Found" : "Something went wrong"}
+                {config.title}
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                {/* Show more specific messages when production hides the actual error */}
-                {isProduction && errorMessage.includes("omitted") ? (
-                  isNotFound ? 
-                    `The user "${username}" could not be found on GitHub. Please check the username and try again.` :
-                    isRateLimit ?
-                    "GitHub API rate limit has been exceeded. Please try again later or configure a GitHub Personal Access Token." :
-                    "An error occurred while fetching GitHub activity. Please try again."
-                ) : (
-                  errorMessage
-                )}
+                {config.getMessage(username, errorMessage)}
               </p>
-              
-              {isRateLimit && (
-                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 mb-4">
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2">How to fix this:</h3>
-                  <ol className="text-sm text-slate-600 dark:text-slate-400 space-y-1 list-decimal list-inside">
-                    <li>Create a GitHub Personal Access Token at <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" className="link">github.com/settings/tokens</a></li>
-                    <li>Copy <code className="bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">.dev.vars.example</code> to <code className="bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">.dev.vars</code></li>
-                    <li>Add your token: <code className="bg-slate-100 dark:bg-slate-700 px-1 py-0.5 rounded">GITHUB_PAT=your_token_here</code></li>
-                    <li>Restart the dev server</li>
-                  </ol>
-                </div>
-              )}
 
-              {isNotFound ? (
+              {errorType === "not_found" ? (
                 <button
                   onClick={() => router.push('/')}
                   className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 hover:opacity-95 inline-flex items-center gap-2"

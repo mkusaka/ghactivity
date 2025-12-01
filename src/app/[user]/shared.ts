@@ -46,7 +46,7 @@ export async function fetchEventsWithEnv(
     const parseResult = safeParseGithubEvents(response.data);
     if (!parseResult.success) {
       console.error("Failed to parse GitHub events:", parseResult.error);
-      throw new Error("Invalid GitHub API response format");
+      throw new Error("SCHEMA_ERROR: Invalid GitHub API response format");
     }
 
     const events = parseResult.data;

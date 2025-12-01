@@ -743,11 +743,15 @@ const PullRequestReviewThreadEventPayloadSchema = z.object({
 
 /**
  * PushEvent payload
+ * Note: GitHub API may return different fields depending on context.
+ * - repository_id is commonly returned
+ * - size, distinct_size, commits may be omitted in the public events API
  */
 const PushEventPayloadSchema = z.object({
-  push_id: z.number(),
-  size: z.number(),
-  distinct_size: z.number(),
+  repository_id: z.number().optional(),
+  push_id: z.number().optional(),
+  size: z.number().optional(),
+  distinct_size: z.number().optional(),
   ref: z.string(),
   head: z.string(),
   before: z.string(),
@@ -760,7 +764,7 @@ const PushEventPayloadSchema = z.object({
     }),
     url: z.string(),
     distinct: z.boolean(),
-  })),
+  })).optional(),
 });
 
 /**
