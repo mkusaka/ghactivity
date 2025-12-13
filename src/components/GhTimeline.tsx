@@ -69,15 +69,16 @@ function eventIconAndText(ev: GithubEvent) {
   if (isPullRequestEvent(ev)) {
     const action = ev.payload.action;
     const pr = ev.payload.pull_request;
-    const merged = pr?.merged;
+    const merged = action === 'merged';
     const title = merged ? "merged a pull request" : `${action} a pull request`;
+    const prUrl = `https://github.com/${repo}/pull/${pr?.number}`;
     return {
       icon: merged ? <GitMerge className="w-4 h-4" /> : <GitPullRequest className="w-4 h-4" />,
       color: merged ? "bg-purple-500/15 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400" : "bg-emerald-500/15 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
       title,
       desc: (
         <span>
-          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={pr?.html_url} target="_blank" rel="noreferrer">#{pr?.number}</a> {pr?.title ? `: ${pr.title}` : ""}
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={prUrl} target="_blank" rel="noreferrer">#{pr?.number}</a>
         </span>
       ),
     };
@@ -430,9 +431,8 @@ export default function GhTimeline({
       if (isPushEvent(e)) {
         c.pushes++;
       } else if (isPullRequestEvent(e)) {
-        const pr = e.payload.pull_request;
         const action = e.payload.action;
-        if (pr?.merged) {
+        if (action === "merged") {
           c.prsMerged++;
         } else if (action === "opened") {
           c.prsOpened++;
@@ -672,11 +672,9 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
   const isIssueCmt = isIssueCommentEvent(ev);
   const isCommitCmt = isCommitCommentEvent(ev);
   const isPrReviewCmt = isPullRequestReviewCommentEvent(ev);
-  const isPrEvent = isPullRequestEvent(ev);
   const issueCommentBody = isIssueCmt ? (ev.payload.comment?.body || "") : "";
   const commitCommentBody = isCommitCmt ? (ev.payload.comment?.body || "") : "";
   const prReviewCommentBody = isPrReviewCmt ? (ev.payload.comment?.body || "") : "";
-  const prBody = isPrEvent ? (ev.payload.pull_request?.body || "") : "";
 
   return (
     <li className="mb-6">
@@ -717,30 +715,7 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
           </div>
         )}
 
-        {isPrEvent && prBody && (
-          <div className="pl-6">
-            {prBody.length > 320 ? (
-              <div className="mt-1">
-                <button onClick={() => setOpen(v => !v)} className="inline-flex items-center gap-1 text-xs text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100">
-                  {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} description
-                </button>
-                <AnimatePresence>
-                  {open && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                      <div className="mt-2 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
-                        {prBody}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
-                {prBody}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Events API returns simplified pull_request without body field, so no PR body to display */}
 
         {isCommitCmt && commitCommentBody && (
           <div className="pl-6">

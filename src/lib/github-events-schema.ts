@@ -384,6 +384,35 @@ const PullRequestSchema = z.object({
 });
 
 /**
+ * Simplified Pull Request object - Used in Events API (PullRequestEvent, etc.)
+ * The Events API returns a minimal version of pull_request, not the full object.
+ * @see https://docs.github.com/en/rest/using-the-rest-api/github-event-types#pullrequestevent
+ */
+const SimplePullRequestSchema = z.object({
+  url: z.string(),
+  id: z.number(),
+  number: z.number(),
+  head: z.object({
+    ref: z.string(),
+    sha: z.string(),
+    repo: z.object({
+      id: z.number(),
+      url: z.string(),
+      name: z.string(),
+    }).nullable(),
+  }),
+  base: z.object({
+    ref: z.string(),
+    sha: z.string(),
+    repo: z.object({
+      id: z.number(),
+      url: z.string(),
+      name: z.string(),
+    }).nullable(),
+  }),
+});
+
+/**
  * Comment object - Complete definition for issue/PR comments
  */
 const IssueCommentSchema = z.object({
@@ -686,11 +715,12 @@ const PublicEventPayloadSchema = z.object({});
 
 /**
  * PullRequestEvent payload
+ * Note: Events API returns a simplified pull_request object, not the full PR.
  */
 const PullRequestEventPayloadSchema = z.object({
   action: z.enum([
     'opened', 'edited', 'closed', 'reopened', 'assigned', 'unassigned',
-    'review_requested', 'review_request_removed', 'labeled', 'unlabeled', 'synchronize'
+    'review_requested', 'review_request_removed', 'labeled', 'unlabeled', 'synchronize', 'merged'
   ]),
   number: z.number(),
   changes: z.object({
@@ -701,7 +731,7 @@ const PullRequestEventPayloadSchema = z.object({
       from: z.string(),
     }).optional(),
   }).optional(),
-  pull_request: PullRequestSchema,
+  pull_request: SimplePullRequestSchema,
   reason: z.string().optional(),
 });
 
