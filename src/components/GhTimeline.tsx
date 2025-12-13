@@ -70,15 +70,25 @@ function eventIconAndText(ev: GithubEvent) {
     const action = ev.payload.action;
     const pr = ev.payload.pull_request;
     const merged = action === 'merged';
-    const title = merged ? "merged a pull request" : `${action} a pull request`;
+    const headRef = pr?.head?.ref;
+    const baseRef = pr?.base?.ref;
     const prUrl = `https://github.com/${repo}/pull/${pr?.number}`;
     return {
       icon: merged ? <GitMerge className="w-4 h-4" /> : <GitPullRequest className="w-4 h-4" />,
       color: merged ? "bg-purple-500/15 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400" : "bg-emerald-500/15 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
-      title,
+      title: `${action} pull request`,
       desc: (
-        <span>
-          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={prUrl} target="_blank" rel="noreferrer">#{pr?.number}</a>
+        <span className="inline-flex items-center gap-1 flex-wrap">
+          <a className="link" href={prUrl} target="_blank" rel="noreferrer">#{pr?.number}</a>
+          {headRef && baseRef && (
+            <span className="text-neutral-500 dark:text-gray-400">
+              <code className="text-xs bg-neutral-100 dark:bg-gray-800 px-1 rounded">{headRef}</code>
+              {" → "}
+              <code className="text-xs bg-neutral-100 dark:bg-gray-800 px-1 rounded">{baseRef}</code>
+            </span>
+          )}
+          <span className="text-neutral-400 dark:text-gray-500">in</span>
+          <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>
         </span>
       ),
     };
