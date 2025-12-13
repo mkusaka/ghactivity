@@ -45,7 +45,12 @@ export async function fetchEventsWithEnv(
     // Validate response with Zod schema
     const parseResult = safeParseGithubEvents(response.data);
     if (!parseResult.success) {
-      console.error("Failed to parse GitHub events:", parseResult.error);
+      // Log only a summary to avoid exceeding Cloudflare Workers log limits (256KB)
+      const errorSummary = parseResult.error.issues.slice(0, 5).map(e => ({
+        path: e.path.join('.'),
+        message: e.message,
+      }));
+      console.error("Failed to parse GitHub events:", JSON.stringify(errorSummary));
       throw new Error("SCHEMA_ERROR: Invalid GitHub API response format");
     }
 
@@ -88,7 +93,12 @@ export async function fetchEventsWithEnv(
         const cachedData = JSON.parse(prev);
         const parseResult = safeParseGithubEvents(cachedData);
         if (!parseResult.success) {
-          console.error("Failed to parse cached GitHub events:", parseResult.error);
+          // Log only a summary to avoid exceeding Cloudflare Workers log limits (256KB)
+          const errorSummary = parseResult.error.issues.slice(0, 5).map(e => ({
+            path: e.path.join('.'),
+            message: e.message,
+          }));
+          console.error("Failed to parse cached GitHub events:", JSON.stringify(errorSummary));
           // If cached data is invalid, fetch fresh data
         } else {
           return {
@@ -113,7 +123,12 @@ export async function fetchEventsWithEnv(
         // Validate fresh response with Zod schema
         const parseResult = safeParseGithubEvents(freshResponse.data);
         if (!parseResult.success) {
-          console.error("Failed to parse fresh GitHub events:", parseResult.error);
+          // Log only a summary to avoid exceeding Cloudflare Workers log limits (256KB)
+          const errorSummary = parseResult.error.issues.slice(0, 5).map(e => ({
+            path: e.path.join('.'),
+            message: e.message,
+          }));
+          console.error("Failed to parse fresh GitHub events:", JSON.stringify(errorSummary));
           throw new Error("Invalid GitHub API response format");
         }
         
