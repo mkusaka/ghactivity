@@ -55,23 +55,13 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="
-        fixed z-50
-        bottom-4 right-4
-        sm:bottom-auto sm:top-4 sm:right-4
-        p-2.5 sm:p-2 rounded-lg
-        bg-white dark:bg-gray-800
-        border border-neutral-200 dark:border-gray-600
-        shadow-lg shadow-neutral-900/5 dark:shadow-none
-        hover:border-neutral-300 hover:shadow-xl hover:shadow-neutral-900/5 dark:hover:border-gray-500
-        transition-all duration-200
-      "
+      className="fixed z-50 top-4 right-4 p-2 rounded-lg border border-line bg-surface text-ink-3 hover:text-accent hover:border-ink-3 transition-colors duration-200"
       aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
     >
       {theme === "light" ? (
-        <Moon className="w-5 h-5 text-neutral-700" />
+        <Moon className="w-4 h-4" />
       ) : (
-        <Sun className="w-5 h-5 text-gray-300" />
+        <Sun className="w-4 h-4" />
       )}
     </button>
   );

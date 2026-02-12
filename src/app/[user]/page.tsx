@@ -16,8 +16,8 @@ export default async function UserPage({ params, searchParams }: { params: Promi
   const { events, meta } = await getEventsAction(user);
 
   return (
-    <main className="min-h-dvh bg-gradient-to-b from-neutral-50 to-white dark:from-gray-900 dark:to-gray-950 text-neutral-900 dark:text-gray-100">
-      <div className="mx-auto max-w-5xl p-6">
+    <main className="min-h-dvh bg-canvas text-ink">
+      <div className="mx-auto max-w-5xl px-6 py-8">
         <GhTimeline user={user} initial={events} initialTypes={initialTypes} pollSec={meta.pollInterval ?? 60} />
       </div>
     </main>
@@ -25,13 +25,12 @@ export default async function UserPage({ params, searchParams }: { params: Promi
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ user: string }> }): Promise<Metadata> {
-  // Lightweight fetch for metadata (reusing the same function)
   const { user } = await params;
   const { env } = getCloudflareContext();
   const { events } = await fetchEventsWithEnv(env, user);
 
   const first = events?.[0];
-  const title = `${user} — Recent GitHub Activity`;
+  const title = `${user} \u2014 ghactivity`;
   const desc =
     first?.type && first?.repo?.name
       ? `Latest: ${first.type.replace(/Event$/, "")} in ${first.repo.name}`
