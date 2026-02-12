@@ -270,7 +270,7 @@ const IssueSchema = z.object({
   created_at: z.string(),
   updated_at: z.string(),
   closed_by: SimpleUserSchema.nullable().optional(),
-  author_association: z.string(),
+  author_association: z.string().optional(),
   draft: z.boolean().optional(),
   reactions: z.object({
     url: z.string(),
@@ -427,7 +427,7 @@ const IssueCommentSchema = z.object({
   created_at: z.string(),
   updated_at: z.string(),
   issue_url: z.string().optional(),
-  author_association: z.string(),
+  author_association: z.string().optional(),
   performed_via_github_app: z.any().nullable().optional(),
   reactions: z.object({
     url: z.string(),
