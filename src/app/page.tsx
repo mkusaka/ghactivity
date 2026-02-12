@@ -28,10 +28,11 @@ export default function Home() {
           Enter a GitHub username to view a timeline.
         </p>
 
-        <label className="text-xs font-medium text-neutral-700 dark:text-gray-300 block mt-4">
+        <label htmlFor="username-input" className="text-xs font-medium text-neutral-700 dark:text-gray-300 block mt-4">
           Username
         </label>
         <input
+          id="username-input"
           className="
             w-full mt-1 px-3 py-2 rounded-lg
             bg-neutral-50 dark:bg-gray-900/50

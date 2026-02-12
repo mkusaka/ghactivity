@@ -113,46 +113,42 @@ export async function fetchEventsWithEnv(
       }
       // 304 but no cache - fetch without ETag
       const freshOctokit = new Octokit({ auth: token });
-      try {
-        const freshResponse = await freshOctokit.activity.listPublicEventsForUser({
-          username: user,
-          per_page: 100,
-          page,
-        });
-        
-        // Validate fresh response with Zod schema
-        const parseResult = safeParseGithubEvents(freshResponse.data);
-        if (!parseResult.success) {
-          // Log only a summary to avoid exceeding Cloudflare Workers log limits (256KB)
-          const errorSummary = parseResult.error.issues.slice(0, 5).map(e => ({
-            path: e.path.join('.'),
-            message: e.message,
-          }));
-          console.error("Failed to parse fresh GitHub events:", JSON.stringify(errorSummary));
-          throw new Error("Invalid GitHub API response format");
-        }
-        
-        const events = parseResult.data;
-        const etag = freshResponse.headers.etag;
-        const pollInterval = freshResponse.headers["x-poll-interval"] ? 
-          parseInt(String(freshResponse.headers["x-poll-interval"])) : undefined;
-        
-        if (kv) {
-          if (etag) await kv.put(etagKey, etag, { expirationTtl: 60 * 30 });
-          await kv.put(listKey, JSON.stringify(events), { expirationTtl: 60 * 5 });
-        }
-        
-        return {
-          events,
-          meta: { 
-            cache: "MISS", 
-            pollInterval: Number.isFinite(pollInterval) ? pollInterval : undefined, 
-            etag 
-          },
-        };
-      } catch (freshError) {
-        throw freshError;
+      const freshResponse = await freshOctokit.activity.listPublicEventsForUser({
+        username: user,
+        per_page: 100,
+        page,
+      });
+
+      // Validate fresh response with Zod schema
+      const parseResult = safeParseGithubEvents(freshResponse.data);
+      if (!parseResult.success) {
+        // Log only a summary to avoid exceeding Cloudflare Workers log limits (256KB)
+        const errorSummary = parseResult.error.issues.slice(0, 5).map(e => ({
+          path: e.path.join('.'),
+          message: e.message,
+        }));
+        console.error("Failed to parse fresh GitHub events:", JSON.stringify(errorSummary));
+        throw new Error("Invalid GitHub API response format");
       }
+
+      const events = parseResult.data;
+      const etag = freshResponse.headers.etag;
+      const pollInterval = freshResponse.headers["x-poll-interval"] ?
+        parseInt(String(freshResponse.headers["x-poll-interval"])) : undefined;
+
+      if (kv) {
+        if (etag) await kv.put(etagKey, etag, { expirationTtl: 60 * 30 });
+        await kv.put(listKey, JSON.stringify(events), { expirationTtl: 60 * 5 });
+      }
+
+      return {
+        events,
+        meta: {
+          cache: "MISS",
+          pollInterval: Number.isFinite(pollInterval) ? pollInterval : undefined,
+          etag
+        },
+      };
     }
 
     // Handle other errors

@@ -6,7 +6,7 @@
 		"dev": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
-		"lint": "eslint .",
+		"lint": "oxlint",
 		"predeploy": "rm -rf .next .open-next",
 		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
 		"preupload": "rm -rf .next .open-next",
@@ -36,8 +36,7 @@
 		"@types/node": "24.10.12",
 		"@types/react": "19.2.13",
 		"@types/react-dom": "19.2.3",
-		"eslint": "9.39.2",
-		"eslint-config-next": "16.1.6",
+		"oxlint": "1.47.0",
 		"tailwindcss": "4.1.18",
 		"typescript": "5.9.3",
 		"wrangler": "4.63.0"
