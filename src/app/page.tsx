@@ -3,82 +3,87 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { RefreshCw } from "lucide-react";
+import { motion } from "framer-motion";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 export default function Home() {
   const [user, setUser] = useState("");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  const go = () => {
+    if (user.trim() && !isPending) {
+      startTransition(() => {
+        router.push(`/${encodeURIComponent(user.trim())}`);
+      });
+    }
+  };
+
   return (
-    <main className="min-h-dvh grid place-items-center p-6 bg-gradient-to-b from-neutral-50 to-white dark:from-gray-900 dark:to-gray-950">
-      <div
-        className="
-          w-full max-w-md rounded-2xl
-          bg-white dark:bg-gray-800/70
-          border border-neutral-200 dark:border-gray-700/50
-          shadow-lg shadow-neutral-900/5 dark:shadow-none
-          p-6
-        "
+    <main className="dot-grid min-h-dvh flex flex-col items-center justify-center px-6">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className="w-full max-w-sm"
       >
-        <h1 className="text-2xl font-semibold text-neutral-900 dark:text-white">
-          GitHub Recent Activity
+        <h1 className="font-mono text-[1.7rem] sm:text-3xl font-semibold tracking-[0.1em] text-center text-ink mb-1">
+          ghactivity
         </h1>
-        <p className="text-sm text-neutral-600 dark:text-gray-400 mt-1">
-          Enter a GitHub username to view a timeline.
+        <p className="text-center text-sm text-ink-2 mb-8">
+          Explore anyone&apos;s GitHub timeline
         </p>
 
-        <label htmlFor="username-input" className="text-xs font-medium text-neutral-700 dark:text-gray-300 block mt-4">
-          Username
-        </label>
-        <input
-          id="username-input"
-          className="
-            w-full mt-1 px-3 py-2 rounded-lg
-            bg-neutral-50 dark:bg-gray-900/50
-            text-neutral-900 dark:text-white
-            placeholder:text-neutral-500 dark:placeholder:text-gray-500
-            border border-neutral-200 dark:border-gray-700/50
-            outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 dark:focus:border-indigo-400 dark:focus:ring-indigo-400/20
-            transition-all duration-200
-          "
-          placeholder="octocat"
-          value={user}
-          onChange={(e) => setUser(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && user.trim() && !isPending) {
-              startTransition(() => {
-                router.push(`/${encodeURIComponent(user.trim())}`);
-              });
-            }
-          }}
-          aria-label="GitHub username"
-          disabled={isPending}
-        />
+        <div className="bg-surface border border-line rounded-xl p-5">
+          <label
+            htmlFor="username-input"
+            className="block text-[11px] font-medium tracking-[0.08em] uppercase text-ink-3 mb-2"
+          >
+            Username
+          </label>
+          <div className="relative">
+            <span
+              className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-accent text-lg leading-none select-none"
+              aria-hidden="true"
+            >
+              &#x203A;
+            </span>
+            <input
+              id="username-input"
+              className="w-full pl-7 pr-3 py-2.5 rounded-lg bg-canvas border border-line font-mono text-sm text-ink placeholder:text-ink-3 focus:border-accent focus:outline-none transition-colors"
+              placeholder="octocat"
+              value={user}
+              onChange={(e) => setUser(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") go();
+              }}
+              disabled={isPending}
+              aria-label="GitHub username"
+            />
+          </div>
 
-        <button
-          className={`
-            mt-4 w-full px-4 py-2.5 rounded-lg
-            bg-neutral-900 text-white hover:bg-neutral-800 active:bg-neutral-900 shadow-sm
-            dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100
-            font-medium
-            inline-flex items-center justify-center gap-2
-            transition-all duration-200
-            ${isPending ? 'opacity-60 cursor-not-allowed' : ''}
-          `}
-          onClick={() => {
-            if (user.trim() && !isPending) {
-              startTransition(() => {
-                router.push(`/${encodeURIComponent(user.trim())}`);
-              });
-            }
-          }}
-          disabled={isPending}
-        >
-          {isPending && <RefreshCw className="w-4 h-4 animate-spin" />}
-          {isPending ? 'Loading...' : 'Show Activity'}
-        </button>
-      </div>
+          <button
+            className="mt-4 w-full py-2.5 rounded-lg bg-accent text-accent-on font-medium text-sm inline-flex items-center justify-center gap-2 hover:bg-accent-h active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+            onClick={go}
+            disabled={isPending}
+          >
+            {isPending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <ArrowRight className="w-4 h-4" />
+            )}
+            {isPending ? "Loading\u2026" : "View Activity"}
+          </button>
+        </div>
+
+        <p className="mt-4 text-center text-[11px] text-ink-3">
+          Press{" "}
+          <kbd className="inline-block px-1.5 py-0.5 rounded border border-line bg-surface font-mono text-[10px] text-ink-2">
+            Enter &#x21B5;
+          </kbd>{" "}
+          to search
+        </p>
+      </motion.div>
     </main>
   );
 }

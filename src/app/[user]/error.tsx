@@ -61,25 +61,25 @@ export default function Error({
   const config = ERROR_CONFIG[errorType];
 
   return (
-    <main className="min-h-dvh bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
-      <div className="mx-auto max-w-2xl p-6 pt-20">
-        <div className="bg-white dark:bg-slate-900 ring-1 ring-slate-200 dark:ring-slate-800 shadow-sm rounded-2xl p-8">
+    <main className="min-h-dvh bg-canvas text-ink">
+      <div className="mx-auto max-w-lg px-6 pt-24">
+        <div className="bg-surface border border-line rounded-xl p-6">
           <div className="flex items-start gap-4">
-            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30">
-              <AlertTriangle className="w-6 h-6 text-rose-600 dark:text-rose-400" />
+            <div className="p-2.5 rounded-lg bg-rose-500/10">
+              <AlertTriangle className="w-5 h-5 text-rose-500" />
             </div>
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-semibold text-ink mb-1.5">
                 {config.title}
               </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+              <p className="text-sm text-ink-2 mb-4">
                 {config.getMessage(username, errorMessage)}
               </p>
 
               {errorType === "not_found" ? (
                 <button
                   onClick={() => router.push('/')}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 hover:opacity-95 inline-flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg bg-accent text-accent-on text-sm font-medium hover:bg-accent-h inline-flex items-center gap-2 transition-colors"
                 >
                   <Home className="w-4 h-4" />
                   Back to Home
@@ -87,7 +87,7 @@ export default function Error({
               ) : (
                 <button
                   onClick={reset}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900 hover:opacity-95 inline-flex items-center gap-2"
+                  className="px-4 py-2 rounded-lg bg-accent text-accent-on text-sm font-medium hover:bg-accent-h inline-flex items-center gap-2 transition-colors"
                 >
                   <RefreshCw className="w-4 h-4" />
                   Try Again

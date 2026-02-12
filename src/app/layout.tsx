@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "GitHub Recent Activity",
-  description: "Timeline view of a user's recent GitHub events.",
+  title: "ghactivity",
+  description: "Explore anyone's GitHub activity timeline.",
   metadataBase: new URL("https://ghactivity.polyfill.workers.dev"),
   icons: {
     icon: '/icon.svg',

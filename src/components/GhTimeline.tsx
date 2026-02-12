@@ -12,13 +12,15 @@ import {
 } from "lucide-react";
 import { getEventsAction } from "@/app/[user]/actions";
 import type { GithubEvent } from "@/app/[user]/shared";
-import { 
+import {
   isPushEvent, isPullRequestEvent, isIssuesEvent, isIssueCommentEvent,
   isPullRequestReviewEvent, isReleaseEvent, isForkEvent, isWatchEvent,
   isCreateEvent, isDeleteEvent, isMemberEvent, isPublicEvent,
   isCommitCommentEvent, isGollumEvent, isPullRequestReviewCommentEvent,
   isPullRequestReviewThreadEvent
 } from "@/lib/github-events-schema";
+
+/* ─── Helpers ─────────────────────────────────────── */
 
 function fmtRel(iso: string) {
   const d = new Date(iso);
@@ -36,9 +38,30 @@ function fmtRel(iso: string) {
 const TYPE_LABELS = [
   "PushEvent", "PullRequestEvent", "IssuesEvent", "IssueCommentEvent",
   "PullRequestReviewEvent", "PullRequestReviewCommentEvent", "PullRequestReviewThreadEvent",
-  "ReleaseEvent", "ForkEvent", "WatchEvent", "CreateEvent", "DeleteEvent", 
+  "ReleaseEvent", "ForkEvent", "WatchEvent", "CreateEvent", "DeleteEvent",
   "PublicEvent", "MemberEvent", "CommitCommentEvent", "GollumEvent",
 ] as const;
+
+const SHORT_LABELS: Record<string, string> = {
+  PushEvent: "Push",
+  PullRequestEvent: "PR",
+  IssuesEvent: "Issues",
+  IssueCommentEvent: "Comment",
+  PullRequestReviewEvent: "Review",
+  PullRequestReviewCommentEvent: "PR Comment",
+  PullRequestReviewThreadEvent: "Thread",
+  ReleaseEvent: "Release",
+  ForkEvent: "Fork",
+  WatchEvent: "Star",
+  CreateEvent: "Create",
+  DeleteEvent: "Delete",
+  PublicEvent: "Public",
+  MemberEvent: "Member",
+  CommitCommentEvent: "Commit Cmt",
+  GollumEvent: "Wiki",
+};
+
+/* ─── Event display ────────────────────────────────── */
 
 function eventIconAndText(ev: GithubEvent) {
   const repo = ev.repo?.name;
@@ -65,7 +88,7 @@ function eventIconAndText(ev: GithubEvent) {
       ),
     };
   }
-  
+
   if (isPullRequestEvent(ev)) {
     const action = ev.payload.action;
     const pr = ev.payload.pull_request;
@@ -81,19 +104,19 @@ function eventIconAndText(ev: GithubEvent) {
         <span className="inline-flex items-center gap-1 flex-wrap">
           <a className="link" href={prUrl} target="_blank" rel="noreferrer">#{pr?.number}</a>
           {headRef && baseRef && (
-            <span className="text-neutral-500 dark:text-gray-400">
-              <code className="text-xs bg-neutral-100 dark:bg-gray-800 px-1 rounded">{headRef}</code>
-              {" → "}
-              <code className="text-xs bg-neutral-100 dark:bg-gray-800 px-1 rounded">{baseRef}</code>
+            <span className="text-ink-2">
+              <code className="text-xs bg-surface-alt px-1 rounded">{headRef}</code>
+              {" \u2192 "}
+              <code className="text-xs bg-surface-alt px-1 rounded">{baseRef}</code>
             </span>
           )}
-          <span className="text-neutral-400 dark:text-gray-500">in</span>
+          <span className="text-ink-3">in</span>
           <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>
         </span>
       ),
     };
   }
-  
+
   if (isIssuesEvent(ev)) {
     const issue = ev.payload.issue;
     const action = ev.payload.action;
@@ -103,157 +126,159 @@ function eventIconAndText(ev: GithubEvent) {
       title: `${action} an issue`,
       desc: (
         <span>
-          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={issue?.html_url} target="_blank" rel="noreferrer">#{issue?.number}</a> {issue?.title ? `: ${issue.title}` : ""}
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> &mdash; <a className="link" href={issue?.html_url} target="_blank" rel="noreferrer">#{issue?.number}</a> {issue?.title ? `: ${issue.title}` : ""}
         </span>
       ),
     };
   }
-  
+
   if (isIssueCommentEvent(ev)) {
     const issue = ev.payload.issue;
     const comment = ev.payload.comment;
-    const action = ev.payload.action; // created | edited | deleted
+    const action = ev.payload.action;
     const isPR = !!issue?.pull_request;
-    const actionText = action === 'edited' 
-      ? 'edited a comment' 
-      : action === 'deleted' 
-        ? 'deleted a comment' 
+    const actionText = action === 'edited'
+      ? 'edited a comment'
+      : action === 'deleted'
+        ? 'deleted a comment'
         : 'commented';
     const title = `${actionText} on ${isPR ? 'a pull request' : 'an issue'}`;
     return {
-      icon: <MessageSquare className="w-4 h-4" />, 
-      color: "bg-sky-500/15 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400", 
+      icon: <MessageSquare className="w-4 h-4" />,
+      color: "bg-sky-500/15 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400",
       title,
       desc: (
         <span>
-          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={issue?.html_url} target="_blank" rel="noreferrer">#{issue?.number}</a> {issue?.title ? `: ${issue.title}` : ""}
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> &mdash; <a className="link" href={issue?.html_url} target="_blank" rel="noreferrer">#{issue?.number}</a> {issue?.title ? `: ${issue.title}` : ""}
           {comment?.html_url ? (<>
-            {' '}— <a className="link" href={comment.html_url} target="_blank" rel="noreferrer">comment</a>
+            {' '}&mdash; <a className="link" href={comment.html_url} target="_blank" rel="noreferrer">comment</a>
           </>) : null}
         </span>
       )
     };
   }
-  
+
   if (isPullRequestReviewEvent(ev)) {
     const reviewState = ev.payload.review?.state;
     return { icon: <Eye className="w-4 h-4" />, color: "bg-amber-500/15 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400", title: `reviewed a pull request${reviewState ? ` (${String(reviewState).toLowerCase()})` : ""}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
-  
+
   if (isReleaseEvent(ev)) {
     const tagName = ev.payload.release?.tag_name;
-    return { icon: <Tag className="w-4 h-4" />, color: "bg-fuchsia-500/15 text-fuchsia-600 dark:bg-fuchsia-950/50 dark:text-fuchsia-400", title: "published a release", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — {tagName}</span>) };
+    return { icon: <Tag className="w-4 h-4" />, color: "bg-fuchsia-500/15 text-fuchsia-600 dark:bg-fuchsia-950/50 dark:text-fuchsia-400", title: "published a release", desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> &mdash; {tagName}</span>) };
   }
-  
+
   if (isForkEvent(ev)) {
     return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
-  
+
   if (isWatchEvent(ev)) {
     return { icon: <Star className="w-4 h-4" />, color: "bg-yellow-500/15 text-yellow-700 dark:bg-yellow-950/50 dark:text-yellow-400", title: "starred a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
-  
+
   if (isCreateEvent(ev)) {
     const refType = ev.payload.ref_type;
     const refName = ev.payload.ref;
-    const refUrl = refType === "branch" 
+    const refUrl = refType === "branch"
       ? `${urlRepo}/tree/${refName}`
       : refType === "tag"
       ? `${urlRepo}/releases/tag/${refName}`
       : urlRepo;
-    return { 
-      icon: <GitBranch className="w-4 h-4" />, 
-      color: "bg-teal-500/15 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400", 
+    return {
+      icon: <GitBranch className="w-4 h-4" />,
+      color: "bg-teal-500/15 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400",
       title: refName ? (
         <>
           created {refType} &quot;<a className="link" href={refUrl} target="_blank" rel="noreferrer">{refName}</a>&quot;
         </>
-      ) : `created ${refType}`, 
+      ) : `created ${refType}`,
       desc: (
         <span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>
-      ) 
+      )
     };
   }
-  
+
   if (isDeleteEvent(ev)) {
     const refType = ev.payload.ref_type;
     const refName = ev.payload.ref;
-    return { 
-      icon: <Trash2 className="w-4 h-4" />, 
-      color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400", 
-      title: `deleted ${refType}${refName ? ` "${refName}"` : ""}`, 
-      desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) 
+    return {
+      icon: <Trash2 className="w-4 h-4" />,
+      color: "bg-zinc-500/15 text-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400",
+      title: `deleted ${refType}${refName ? ` "${refName}"` : ""}`,
+      desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>)
     };
   }
-  
+
   if (isPublicEvent(ev)) {
     return { icon: <Unlock className="w-4 h-4" />, color: "bg-green-500/15 text-green-600 dark:bg-green-950/50 dark:text-green-400", title: "made repository public", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
-  
+
   if (isCommitCommentEvent(ev)) {
     const c = ev.payload.comment;
     const sha = c?.commit_id || "";
     const short = sha ? sha.slice(0, 7) : "";
-    return { 
-      icon: <MessageCircle className="w-4 h-4" />, 
-      color: "bg-violet-500/15 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400", 
-      title: "commented on a commit", 
+    return {
+      icon: <MessageCircle className="w-4 h-4" />,
+      color: "bg-violet-500/15 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400",
+      title: "commented on a commit",
       desc: (
         <span>
           in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>
           {sha ? (
             <>
-              {' '}— <a className="link" href={`${urlRepo}/commit/${sha}`} target="_blank" rel="noreferrer">{short}</a>
+              {' '}&mdash; <a className="link" href={`${urlRepo}/commit/${sha}`} target="_blank" rel="noreferrer">{short}</a>
             </>
           ) : null}
           {c?.html_url ? (
             <>
-              {' '}— <a className="link" href={c.html_url} target="_blank" rel="noreferrer">comment</a>
+              {' '}&mdash; <a className="link" href={c.html_url} target="_blank" rel="noreferrer">comment</a>
             </>
           ) : null}
         </span>
-      ) 
+      )
     };
   }
-  
+
   if (isGollumEvent(ev)) {
     const pages = ev.payload.pages || [];
     const pageCount = pages.length;
     return { icon: <BookOpen className="w-4 h-4" />, color: "bg-orange-500/15 text-orange-600 dark:bg-orange-950/50 dark:text-orange-400", title: `updated ${pageCount} wiki page${pageCount !== 1 ? 's' : ''}`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
-  
+
   if (isPullRequestReviewCommentEvent(ev)) {
     const pr = ev.payload.pull_request;
     const c = ev.payload.comment;
-    return { 
-      icon: <MessageCircle className="w-4 h-4" />, 
-      color: "bg-pink-500/15 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400", 
+    return {
+      icon: <MessageCircle className="w-4 h-4" />,
+      color: "bg-pink-500/15 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400",
       title: "commented on a pull request",
       desc: (
         <span>
-          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> — <a className="link" href={pr?.html_url} target="_blank" rel="noreferrer">#{pr?.number}</a> {pr?.title ? `: ${pr.title}` : ""}
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> &mdash; <a className="link" href={pr?.html_url} target="_blank" rel="noreferrer">#{pr?.number}</a> {pr?.title ? `: ${pr.title}` : ""}
           {c?.html_url ? (
             <>
-              {' '}— <a className="link" href={c.html_url} target="_blank" rel="noreferrer">comment</a>
+              {' '}&mdash; <a className="link" href={c.html_url} target="_blank" rel="noreferrer">comment</a>
             </>
           ) : null}
         </span>
-      ) 
+      )
     };
   }
-  
+
   if (isPullRequestReviewThreadEvent(ev)) {
     const action = ev.payload.action;
     return { icon: <MessageSquare className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400", title: `${action} review thread`, desc: (<span>in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a></span>) };
   }
-  
+
   if (isMemberEvent(ev)) {
     return { icon: <Users className="w-4 h-4" />, color: "bg-cyan-500/15 text-cyan-600 dark:bg-cyan-950/50 dark:text-cyan-400", title: "changed collaborators", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
   }
-  
-  // Default case - should never happen with complete type coverage
+
+  // Default case
   return { icon: <Link2 className="w-4 h-4" />, color: "bg-gray-500/10 text-gray-700 dark:bg-gray-800/50 dark:text-gray-400", title: (ev as GithubEvent).type || "Unknown", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
 }
+
+/* ─── Main component ──────────────────────────────── */
 
 export default function GhTimeline({
   user,
@@ -296,17 +321,17 @@ export default function GhTimeline({
   // Load more events (GitHub API limits to 300 events total)
   const loadMore = useCallback(async () => {
     if (isLoadingMore || !hasMore) return;
-    
+
     setIsLoadingMore(true);
     try {
       const nextPage = page + 1;
-      // GitHub API limits to 300 events (3 pages × 100 events/page)
+      // GitHub API limits to 300 events (3 pages x 100 events/page)
       if (nextPage > 3) {
         setHasMore(false);
         setIsLoadingMore(false);
         return;
       }
-      
+
       const { events: newEvents } = await getEventsAction(user, nextPage);
 
       // Determine no next page (less than 100 items = end)
@@ -357,11 +382,11 @@ export default function GhTimeline({
   // Auto-refresh first page only (preserves loaded pages)
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
-    
+
     const refresh = () => {
       // Only refresh if document is visible
       if (document.visibilityState !== 'visible') return;
-      
+
       startTransition(async () => {
         try {
           const { events: newEvents } = await getEventsAction(user, 1);
@@ -380,22 +405,22 @@ export default function GhTimeline({
         }
       });
     };
-    
+
     const startInterval = () => {
       // Clear existing interval if any
       if (intervalId) clearInterval(intervalId);
-      
+
       // Start new interval
       intervalId = setInterval(refresh, Math.max(15, pollSec) * 1000);
     };
-    
+
     const stopInterval = () => {
       if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;
       }
     };
-    
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         // Resume refresh when tab becomes visible
@@ -407,15 +432,15 @@ export default function GhTimeline({
         stopInterval();
       }
     };
-    
+
     // Start interval initially if document is visible
     if (document.visibilityState === 'visible') {
       startInterval();
     }
-    
+
     // Listen for visibility changes
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     return () => {
       stopInterval();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
@@ -489,96 +514,79 @@ export default function GhTimeline({
     URL.revokeObjectURL(url);
   };
 
-
   return (
-    <div className="mx-auto max-w-5xl w-full">
-      {/* Header: buttons with opaque white + ring */}
+    <div className="w-full">
+      {/* ── Header ── */}
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white">
-            {user} — Recent GitHub Activity
-          </h1>
-          <p className="text-sm text-neutral-600 dark:text-gray-400">Timeline of public (or authorized) events.</p>
+          <h1 className="font-mono text-2xl sm:text-3xl font-semibold tracking-tight text-ink">{user}</h1>
+          <p className="text-sm text-ink-2 mt-0.5">Recent GitHub Activity</p>
         </div>
-        <div className="flex gap-2 items-center">
-          
+        <div className="flex flex-wrap gap-2">
           {(() => {
             const list = Array.from(allowed).sort().join(',');
             const rssHref = list ? `/${user}/rss?type=${encodeURIComponent(list)}` : `/${user}/rss`;
             return (
-              <a
-                href={rssHref}
-                className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800/50 text-neutral-700 dark:text-gray-100 border border-neutral-200 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-800 inline-flex items-center gap-2 transition-all duration-200"
-                title="Subscribe to RSS feed"
-              >
-                RSS Feed
-              </a>
+              <a href={rssHref} className="btn-secondary" title="Subscribe to RSS feed">RSS</a>
             );
           })()}
-          <button
-            onClick={onRefresh}
-            disabled={isPending}
-            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800/50 text-neutral-700 dark:text-gray-100 border border-neutral-200 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 transition-all duration-200"
-          >
-            <RefreshCw className={`w-4 h-4 ${isPending ? 'animate-spin' : ''}`} />
-            {isPending ? 'Refreshing...' : 'Refresh'}
+          <button onClick={onRefresh} disabled={isPending} className="btn-secondary">
+            <RefreshCw className={`w-3.5 h-3.5 ${isPending ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">{isPending ? 'Refreshing\u2026' : 'Refresh'}</span>
           </button>
-          <button
-            onClick={downloadJson}
-            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800/50 text-neutral-700 dark:text-gray-100 border border-neutral-200 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-800 inline-flex items-center gap-2 transition-all duration-200"
-          >
-            <Download className="w-4 h-4" />Export JSON
+          <button onClick={downloadJson} className="btn-secondary">
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Export</span>
           </button>
           <a
             href={`https://github.com/${user}`}
             target="_blank"
             rel="noreferrer"
+            className="btn-secondary"
             aria-label={`Open @${user} on GitHub`}
-            className="px-3 py-2 rounded-lg bg-white dark:bg-gray-800/50 text-neutral-700 dark:text-gray-100 border border-neutral-200 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-300 hover:shadow-sm dark:hover:bg-gray-800 inline-flex items-center gap-2 transition-all duration-200"
           >
-            <Github className="w-4 h-4" />View @{user} on GitHub
+            <Github className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">GitHub</span>
           </a>
         </div>
       </header>
 
-      {/* Summary cards: opaque white + ring */}
-      <section className={`mt-6 grid gap-3 sm:grid-cols-3 transition-opacity duration-300 ${isPending ? 'opacity-50' : 'opacity-100'}`}>
-        <Stat label="Pushes" value={counters.pushes} icon={<GitCommit className="w-4 h-4" />} />
-        <Stat label="PRs (opened/merged)" value={`${counters.prsOpened}/${counters.prsMerged}`} icon={<GitPullRequest className="w-4 h-4" />} />
-        <Stat label="Issues (open/closed)" value={`${counters.issuesOpened}/${counters.issuesClosed}`} icon={<AlertTriangle className="w-4 h-4" />} />
-        <Stat label="Reviews" value={counters.reviews} icon={<Eye className="w-4 h-4" />} />
-        <Stat label="Stars" value={counters.stars} icon={<Star className="w-4 h-4" />} />
-        <Stat label="Forks" value={counters.forks} icon={<GitFork className="w-4 h-4" />} />
-        <Stat label="Releases" value={counters.releases} icon={<Tag className="w-4 h-4" />} />
-      </section>
-
-      {/* Filter card: opaque white + ring */}
-      <section className="mt-6 p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-neutral-200 dark:border-gray-700/50">
-        <div className="flex items-center justify-between gap-3">
-          <FilterPillBar allowed={allowed} setAllowed={setAllowed} />
-          {error && <div className="text-xs text-rose-600">{error}</div>}
+      {/* ── Stats strip ── */}
+      <section className={`mt-6 rounded-xl border border-line bg-surface overflow-hidden transition-opacity duration-300 ${isPending ? 'opacity-50' : ''}`}>
+        <div className="flex overflow-x-auto">
+          <StatCell label="Pushes" value={counters.pushes} icon={<GitCommit className="w-3 h-3" />} />
+          <StatCell label="PRs" value={`${counters.prsOpened}/${counters.prsMerged}`} icon={<GitPullRequest className="w-3 h-3" />} />
+          <StatCell label="Issues" value={`${counters.issuesOpened}/${counters.issuesClosed}`} icon={<AlertTriangle className="w-3 h-3" />} />
+          <StatCell label="Reviews" value={counters.reviews} icon={<Eye className="w-3 h-3" />} />
+          <StatCell label="Stars" value={counters.stars} icon={<Star className="w-3 h-3" />} />
+          <StatCell label="Forks" value={counters.forks} icon={<GitFork className="w-3 h-3" />} />
+          <StatCell label="Releases" value={counters.releases} icon={<Tag className="w-3 h-3" />} />
         </div>
       </section>
 
-      {/* Timeline main content */}
-      <section className={`mt-6 transition-opacity duration-300 ${isPending ? 'opacity-50' : 'opacity-100'}`}>
+      {/* ── Filters ── */}
+      <section className="mt-4 px-4 py-3 rounded-xl border border-line bg-surface">
+        <div className="flex items-center justify-between gap-3">
+          <FilterPillBar allowed={allowed} setAllowed={setAllowed} />
+          {error && <div className="text-xs text-rose-500 flex-shrink-0">{error}</div>}
+        </div>
+      </section>
+
+      {/* ── Timeline ── */}
+      <section className={`mt-6 transition-opacity duration-300 ${isPending ? 'opacity-50' : ''}`}>
         {Object.keys(grouped).length === 0 && (
-          <div className="text-neutral-500 dark:text-gray-400 text-sm">No events.</div>
+          <div className="text-center py-16 text-ink-3 text-sm">No events to display.</div>
         )}
 
         <div className="space-y-8">
           {Object.entries(grouped)
-            .sort((a, b) => {
-              const dateA = new Date(a[0]);
-              const dateB = new Date(b[0]);
-              return dateB.valueOf() - dateA.valueOf();
-            })
+            .sort((a, b) => new Date(b[0]).valueOf() - new Date(a[0]).valueOf())
             .map(([day, items]) => (
             <div key={day}>
-              <div className="sticky top-0 z-10 py-1 backdrop-blur-sm bg-gradient-to-r from-neutral-50/95 to-white/95 dark:from-gray-900/95 dark:to-gray-950/95">
-                <h3 className="text-sm font-semibold text-neutral-600 dark:text-gray-400">{day}</h3>
+              <div className="sticky-day sticky top-0 z-10 py-2">
+                <h3 className="text-xs font-mono font-medium tracking-wider uppercase text-ink-3">{day}</h3>
               </div>
-              <ol className="relative ml-3 border-l border-neutral-200 dark:border-gray-700 pl-6">
+              <ol className="relative ml-3 border-l border-line pl-6">
                 {items
                   .sort((a, b) => {
                     if (!a.created_at || !b.created_at) return 0;
@@ -591,27 +599,25 @@ export default function GhTimeline({
             </div>
           ))}
         </div>
-        
+
         {/* Infinite scroll trigger */}
         {hasMore && (
           <div ref={observerTarget} className="py-8 flex justify-center">
             {isLoadingMore ? (
-              <div className="flex items-center gap-2 text-neutral-600 dark:text-gray-400">
+              <div className="flex items-center gap-2 text-ink-2">
                 <RefreshCw className="w-4 h-4 animate-spin" />
-                <span className="text-sm">Loading more events...</span>
+                <span className="text-sm">Loading more&hellip;</span>
               </div>
             ) : (
-              <div className="text-sm text-neutral-500 dark:text-gray-400">
-                Scroll for more
-              </div>
+              <div className="text-sm text-ink-3">Scroll for more</div>
             )}
           </div>
         )}
-        
+
         {!hasMore && events.length > 0 && (
-          <div className="py-8 text-center text-sm text-neutral-500 dark:text-gray-400">
-            {page >= 3 
-              ? "Reached GitHub API limit (max 300 events)" 
+          <div className="py-8 text-center text-sm text-ink-3">
+            {page >= 3
+              ? "Reached GitHub API limit (max 300 events)"
               : "No more events to load"}
           </div>
         )}
@@ -620,18 +626,17 @@ export default function GhTimeline({
   );
 }
 
-function Stat({ label, value, icon }: { label: string; value: string | number; icon: React.ReactNode }) {
+/* ─── Sub-components ──────────────────────────────── */
+
+function StatCell({ label, value, icon }: { label: string; value: string | number; icon: React.ReactNode }) {
   return (
-    <motion.div
-      layout
-      className="p-4 rounded-xl bg-white dark:bg-gray-800/50 border border-neutral-200 dark:border-gray-700/50 flex items-center gap-3 hover:border-neutral-300 hover:bg-gray-50 hover:shadow-sm dark:hover:bg-gray-800 dark:hover:border-gray-600 transition-all duration-200"
-    >
-      <div className="p-2 rounded-lg bg-neutral-100 dark:bg-gray-700/50">{icon}</div>
-      <div>
-        <div className="text-xs text-neutral-600 dark:text-gray-300">{label}</div>
-        <div className="text-lg font-semibold text-neutral-900 dark:text-white">{String(value)}</div>
+    <div className="flex-1 min-w-[80px] px-2 py-3 text-center border-r border-line-2 last:border-r-0">
+      <div className="font-mono text-lg sm:text-xl font-semibold text-ink">{String(value)}</div>
+      <div className="mt-0.5 text-[11px] text-ink-2 flex items-center justify-center gap-1">
+        {icon}
+        <span>{label}</span>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -642,9 +647,8 @@ function FilterPillBar({
   setAllowed: (s: Set<string>) => void;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5">
       {TYPE_LABELS.map((t) => {
-        const active = allowed.size === 0 || allowed.has(t);
         const isSelected = allowed.has(t);
         return (
           <button
@@ -654,31 +658,66 @@ function FilterPillBar({
               if (n.has(t)) n.delete(t); else n.add(t);
               setAllowed(n);
             }}
-            className={`px-3 py-1 rounded-full text-xs border transition-all duration-200 ${
+            className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-150 ${
               isSelected
-                ? "bg-indigo-600 dark:bg-indigo-500 text-white dark:text-white border-indigo-600 dark:border-indigo-500 shadow-sm shadow-indigo-600/20"
-                : "bg-white dark:bg-gray-800/30 text-neutral-700 dark:text-gray-400 border-neutral-300 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-400 dark:hover:bg-gray-800/50"
+                ? "bg-accent text-accent-on"
+                : "bg-surface-alt text-ink-3 hover:text-ink-2"
             }`}
             aria-pressed={isSelected}
-            title={active ? `Filter: showing ${t}` : `Filter: hidden ${t}`}
+            title={`Filter: ${SHORT_LABELS[t] || t}`}
           >
-            {t}
+            {SHORT_LABELS[t] || t.replace(/Event$/, "")}
           </button>
         );
       })}
+      {allowed.size > 0 && (
+        <button
+          onClick={() => setAllowed(new Set())}
+          className="px-2.5 py-1 rounded-full text-xs font-medium text-ink-3 hover:text-accent transition-colors duration-150"
+        >
+          Clear
+        </button>
+      )}
+    </div>
+  );
+}
+
+function CommentBody({ body }: { body: string }) {
+  const [open, setOpen] = useState(false);
+  const isLong = body.length > 320;
+
+  if (!isLong) {
+    return (
+      <div className="mt-2 rounded-lg p-3 bg-canvas border border-line text-xs font-mono whitespace-pre-wrap break-words text-ink-2">
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-1">
       <button
-        onClick={() => setAllowed(new Set())}
-        className="px-3 py-1 rounded-full text-xs bg-white dark:bg-gray-800/30 text-neutral-700 dark:text-gray-400 border border-neutral-300 dark:border-gray-700/50 hover:bg-gray-50 hover:border-neutral-400 dark:hover:bg-gray-800/50 transition-all duration-200"
+        onClick={() => setOpen(v => !v)}
+        className="inline-flex items-center gap-1 text-xs text-ink-3 hover:text-accent transition-colors"
       >
-        Clear
+        {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+        {open ? "Hide" : "Show"} comment
       </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+            <div className="mt-2 rounded-lg p-3 bg-canvas border border-line text-xs font-mono whitespace-pre-wrap break-words text-ink-2">
+              {body}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 function TimelineItem({ ev }: { ev: GithubEvent }) {
   const meta = eventIconAndText(ev);
-  const [open, setOpen] = useState(false);
   const isIssueCmt = isIssueCommentEvent(ev);
   const isCommitCmt = isCommitCommentEvent(ev);
   const isPrReviewCmt = isPullRequestReviewCommentEvent(ev);
@@ -687,93 +726,40 @@ function TimelineItem({ ev }: { ev: GithubEvent }) {
   const prReviewCommentBody = isPrReviewCmt ? (ev.payload.comment?.body || "") : "";
 
   return (
-    <li className="mb-6">
-      <div className="absolute -left-[9px] mt-1 w-4 h-4 rounded-full border-2 border-neutral-200 dark:border-gray-700 bg-white shadow-sm dark:bg-gray-800 dark:shadow-none" />
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full ${meta.color}`}>{meta.icon}<span>{ev.type?.replace(/Event$/, "") || "Unknown"}</span></span>
-          <span className="text-sm text-neutral-900 dark:text-gray-100">{meta.title} {meta.desc}</span>
+    <li className="mb-6 last:mb-0">
+      <div className="absolute -left-2 mt-1.5 w-4 h-4 rounded-full border-2 border-line bg-surface" />
+      <div className="flex flex-col gap-0.5">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-md ${meta.color}`}>
+            {meta.icon}
+            <span>{ev.type?.replace(/Event$/, "") || "Unknown"}</span>
+          </span>
+          <span className="text-sm text-ink">{meta.title} {meta.desc}</span>
         </div>
-        <div className="text-xs text-neutral-600 dark:text-slate-400 flex items-center gap-2">
-          <Clock className="w-3 h-3" /> {ev.created_at ? fmtRel(ev.created_at) : "Unknown"}
+        <div className="text-xs text-ink-3 flex items-center gap-2 ml-0.5">
+          <Clock className="w-3 h-3" />
+          {ev.created_at ? fmtRel(ev.created_at) : "Unknown"}
+          <span className="text-line">&middot;</span>
           <a className="link" href={`https://github.com/${ev.actor?.login}`} target="_blank" rel="noreferrer">@{ev.actor?.login}</a>
-          <span className="text-neutral-300 dark:text-gray-600">•</span> id: {ev.id}
+          <span className="text-line">&middot;</span>
+          <span className="font-mono text-[10px]">{ev.id}</span>
         </div>
 
         {isIssueCmt && ev.payload.action !== 'deleted' && issueCommentBody && (
           <div className="pl-6">
-            {issueCommentBody.length > 320 ? (
-              <div className="mt-1">
-                <button onClick={() => setOpen(v => !v)} className="inline-flex items-center gap-1 text-xs text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100">
-                  {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} comment
-                </button>
-                <AnimatePresence>
-                  {open && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                      <div className="mt-2 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
-                        {issueCommentBody}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
-                {issueCommentBody}
-              </div>
-            )}
+            <CommentBody body={issueCommentBody} />
           </div>
         )}
 
-        {/* Events API returns simplified pull_request without body field, so no PR body to display */}
-
         {isCommitCmt && commitCommentBody && (
           <div className="pl-6">
-            {commitCommentBody.length > 320 ? (
-              <div className="mt-1">
-                <button onClick={() => setOpen(v => !v)} className="inline-flex items-center gap-1 text-xs text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100">
-                  {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} comment
-                </button>
-                <AnimatePresence>
-                  {open && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                      <div className="mt-2 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
-                        {commitCommentBody}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
-                {commitCommentBody}
-              </div>
-            )}
+            <CommentBody body={commitCommentBody} />
           </div>
         )}
 
         {isPrReviewCmt && prReviewCommentBody && (
           <div className="pl-6">
-            {prReviewCommentBody.length > 320 ? (
-              <div className="mt-1">
-                <button onClick={() => setOpen(v => !v)} className="inline-flex items-center gap-1 text-xs text-neutral-700 hover:text-neutral-900 dark:text-gray-300 dark:hover:text-gray-100">
-                  {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />} {open ? "Hide" : "Show"} comment
-                </button>
-                <AnimatePresence>
-                  {open && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
-                      <div className="mt-2 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
-                        {prReviewCommentBody}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ) : (
-              <div className="mt-1 rounded-lg p-2 bg-white dark:bg-gray-900 border border-neutral-200 dark:border-gray-800 text-xs whitespace-pre-wrap break-words">
-                {prReviewCommentBody}
-              </div>
-            )}
+            <CommentBody body={prReviewCommentBody} />
           </div>
         )}
       </div>
