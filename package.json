@@ -39,6 +39,6 @@
 		"oxlint": "1.47.0",
 		"tailwindcss": "4.1.18",
 		"typescript": "5.9.3",
-		"wrangler": "4.64.0"
+		"wrangler": "4.65.0"
 	}
 }
