@@ -1,7 +1,8 @@
 export default function Loading() {
   return (
-    <main className="min-h-dvh bg-canvas text-ink">
+    <main className="dot-grid min-h-dvh text-ink">
       <div className="mx-auto max-w-5xl px-6 py-8">
+        <div className="h-4 w-20 bg-line-2 rounded mb-6" />
         <div className="animate-pulse">
           {/* Header */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

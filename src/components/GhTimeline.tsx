@@ -585,7 +585,7 @@ export default function GhTimeline({
       </header>
 
       {/* ── Stats strip ── */}
-      <section className={`mt-6 rounded-xl border border-line bg-surface overflow-hidden transition-opacity duration-300 ${isPending ? 'opacity-50' : ''}`}>
+      <section className={`mt-6 rounded-xl border border-line bg-surface overflow-hidden transition-opacity duration-300 scroll-fade-r ${isPending ? 'opacity-50' : ''}`}>
         <div className="flex overflow-x-auto">
           <StatCell label="Pushes" value={counters.pushes} icon={<GitCommit className="w-3 h-3" />} />
           <StatCell label="PRs" value={`${counters.prsOpened}/${counters.prsMerged}`} icon={<GitPullRequest className="w-3 h-3" />} />
@@ -604,6 +604,7 @@ export default function GhTimeline({
             <FilterPillBar allowed={allowed} setAllowed={setAllowed} />
             {error && <div className="text-xs text-rose-500 flex-shrink-0">{error}</div>}
           </div>
+          <div className="border-t border-line-2" />
           <OwnershipPillBar ownership={ownership} setOwnership={setOwnership} />
         </div>
       </section>
