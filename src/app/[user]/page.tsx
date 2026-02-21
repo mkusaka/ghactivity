@@ -12,13 +12,14 @@ export default async function UserPage({ params, searchParams }: { params: Promi
   const sp = searchParams ? await searchParams : {};
   const typeParam = typeof sp?.type === 'string' ? sp.type : Array.isArray(sp?.type) ? sp.type.join(',') : undefined;
   const initialTypes = typeParam ? typeParam.split(',').map(s => s.trim()).filter(Boolean) : [];
+  const ownershipParam = typeof sp?.ownership === 'string' ? sp.ownership : undefined;
 
   const { events, meta } = await getEventsAction(user);
 
   return (
     <main className="min-h-dvh bg-canvas text-ink">
       <div className="mx-auto max-w-5xl px-6 py-8">
-        <GhTimeline user={user} initial={events} initialTypes={initialTypes} pollSec={meta.pollInterval ?? 60} />
+        <GhTimeline user={user} initial={events} initialTypes={initialTypes} initialOwnership={ownershipParam} pollSec={meta.pollInterval ?? 60} />
       </div>
     </main>
   );

@@ -280,20 +280,31 @@ function eventIconAndText(ev: GithubEvent) {
 
 /* ─── Main component ──────────────────────────────── */
 
+const OWNERSHIP_LABELS = ["own", "external"] as const;
+const OWNERSHIP_SHORT: Record<string, string> = {
+  own: "Own",
+  external: "External",
+};
+
 export default function GhTimeline({
   user,
   initial,
   initialTypes = [],
+  initialOwnership,
   pollSec = 60,
 }: {
   user: string;
   initial: GithubEvent[];
   initialTypes?: string[];
+  initialOwnership?: string;
   pollSec?: number;
 }) {
   const [events, setEvents] = useState<GithubEvent[]>(initial);
   // Initialize from server-provided initialTypes
   const [allowed, setAllowed] = useState<Set<string>>(() => new Set(initialTypes));
+  const [ownership, setOwnership] = useState<string | null>(
+    () => initialOwnership && (OWNERSHIP_LABELS as readonly string[]).includes(initialOwnership) ? initialOwnership : null
+  );
   const [error, setError] = useState("");
   const [isPending, startTransition] = useTransition();
   const [page, setPage] = useState(1);
@@ -302,7 +313,7 @@ export default function GhTimeline({
   const observerTarget = useRef<HTMLDivElement>(null);
   const sp = useSearchParams();
 
-  // Sync allowed set to URL query (?type=...) without triggering a navigation
+  // Sync allowed set and ownership to URL query without triggering a navigation
   useEffect(() => {
     const params = new URLSearchParams(sp?.toString());
     if (allowed.size === 0) {
@@ -311,12 +322,17 @@ export default function GhTimeline({
       const list = Array.from(allowed).sort().join(',');
       params.set('type', list);
     }
+    if (ownership) {
+      params.set('ownership', ownership);
+    } else {
+      params.delete('ownership');
+    }
     const q = params.toString();
     const newUrl = q ? `${window.location.pathname}?${q}` : window.location.pathname;
     if (newUrl !== window.location.pathname + (window.location.search ? `?${window.location.search.slice(1)}` : '')) {
       window.history.replaceState(null, '', newUrl);
     }
-  }, [allowed, sp]);
+  }, [allowed, ownership, sp]);
 
   // Load more events (GitHub API limits to 300 events total)
   const loadMore = useCallback(async () => {
@@ -447,7 +463,20 @@ export default function GhTimeline({
     };
   }, [user, pollSec, page]);
 
-  const filtered = useMemo(() => (allowed.size === 0 ? events : events.filter(e => e.type && allowed.has(e.type))), [events, allowed]);
+  const filtered = useMemo(() => {
+    let result = events;
+    if (allowed.size > 0) {
+      result = result.filter(e => e.type && allowed.has(e.type));
+    }
+    if (ownership) {
+      result = result.filter(e => {
+        const repoOwner = e.repo?.name?.split('/')[0]?.toLowerCase();
+        const isOwn = repoOwner === user.toLowerCase();
+        return ownership === 'own' ? isOwn : !isOwn;
+      });
+    }
+    return result;
+  }, [events, allowed, ownership, user]);
 
   const grouped = useMemo(() => {
     const g: Record<string, GithubEvent[]> = {};
@@ -524,8 +553,12 @@ export default function GhTimeline({
         </div>
         <div className="flex flex-wrap gap-2">
           {(() => {
+            const params = new URLSearchParams();
             const list = Array.from(allowed).sort().join(',');
-            const rssHref = list ? `/${user}/rss?type=${encodeURIComponent(list)}` : `/${user}/rss`;
+            if (list) params.set('type', list);
+            if (ownership) params.set('ownership', ownership);
+            const q = params.toString();
+            const rssHref = q ? `/${user}/rss?${q}` : `/${user}/rss`;
             return (
               <a href={rssHref} className="btn-secondary" title="Subscribe to RSS feed">RSS</a>
             );
@@ -566,9 +599,12 @@ export default function GhTimeline({
 
       {/* ── Filters ── */}
       <section className="mt-4 px-4 py-3 rounded-xl border border-line bg-surface">
-        <div className="flex items-center justify-between gap-3">
-          <FilterPillBar allowed={allowed} setAllowed={setAllowed} />
-          {error && <div className="text-xs text-rose-500 flex-shrink-0">{error}</div>}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-3">
+            <FilterPillBar allowed={allowed} setAllowed={setAllowed} />
+            {error && <div className="text-xs text-rose-500 flex-shrink-0">{error}</div>}
+          </div>
+          <OwnershipPillBar ownership={ownership} setOwnership={setOwnership} />
         </div>
       </section>
 
@@ -678,6 +714,36 @@ function FilterPillBar({
           Clear
         </button>
       )}
+    </div>
+  );
+}
+
+function OwnershipPillBar({
+  ownership, setOwnership,
+}: {
+  ownership: string | null;
+  setOwnership: (s: string | null) => void;
+}) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {OWNERSHIP_LABELS.map((o) => {
+        const isSelected = ownership === o;
+        return (
+          <button
+            key={o}
+            onClick={() => setOwnership(isSelected ? null : o)}
+            className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-150 ${
+              isSelected
+                ? "bg-accent text-accent-on"
+                : "bg-surface-alt text-ink-3 hover:text-ink-2"
+            }`}
+            aria-pressed={isSelected}
+            title={`Filter: ${OWNERSHIP_SHORT[o]} repos`}
+          >
+            {OWNERSHIP_SHORT[o]}
+          </button>
+        );
+      })}
     </div>
   );
 }
