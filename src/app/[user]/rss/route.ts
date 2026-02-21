@@ -24,15 +24,25 @@ export async function GET(
     const { events, meta } = await fetchEventsWithEnv(env, user);
     
     // Filter events by type if specified
-    const filteredEvents = eventTypes 
+    let filteredEvents = eventTypes
       ? events.filter(event => eventTypes.includes(event.type))
       : events;
-    
+
+    // Filter events by ownership if specified
+    const ownershipParam = url.searchParams.get('ownership');
+    if (ownershipParam === 'own' || ownershipParam === 'external') {
+      filteredEvents = filteredEvents.filter(event => {
+        const repoOwner = event.repo?.name?.split('/')[0]?.toLowerCase();
+        const isOwn = repoOwner === user.toLowerCase();
+        return ownershipParam === 'own' ? isOwn : !isOwn;
+      });
+    }
+
     // Generate RSS feed
     const rssFeed = await generateRssFeed(user, filteredEvents);
-    
+
     // Generate ETag for the feed content (include filter params in hash)
-    const etagContent = rssFeed + (typeParam || '');
+    const etagContent = rssFeed + (typeParam || '') + (ownershipParam || '');
     const etag = `"${crypto.createHash('md5').update(etagContent).digest('hex')}"`;
     
     // Check If-None-Match header for conditional request
