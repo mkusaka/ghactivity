@@ -99,6 +99,23 @@ body {
   border-color: var(--line);
 }
 
+/* ─── Scroll Hints ─── */
+
+.scroll-fade-r {
+  position: relative;
+}
+.scroll-fade-r::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 32px;
+  background: linear-gradient(to right, transparent, var(--surface));
+  pointer-events: none;
+  border-radius: 0 0.75rem 0.75rem 0;
+}
+
 /* ─── Utilities ─── */
 
 .link {

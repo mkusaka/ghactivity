@@ -4,6 +4,7 @@ import GhTimeline from "@/components/GhTimeline";
 import { fetchEventsWithEnv } from "./shared";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const runtime = "nodejs";
 
@@ -17,8 +18,14 @@ export default async function UserPage({ params, searchParams }: { params: Promi
   const { events, meta } = await getEventsAction(user);
 
   return (
-    <main className="min-h-dvh bg-canvas text-ink">
+    <main className="dot-grid min-h-dvh text-ink">
       <div className="mx-auto max-w-5xl px-6 py-8">
+        <Link
+          href="/"
+          className="inline-block font-mono text-sm font-semibold tracking-[0.1em] text-ink-3 hover:text-accent transition-colors mb-6"
+        >
+          ghactivity
+        </Link>
         <GhTimeline user={user} initial={events} initialTypes={initialTypes} initialOwnership={ownershipParam} pollSec={meta.pollInterval ?? 60} />
       </div>
     </main>

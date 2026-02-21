@@ -4,6 +4,7 @@
 import { useEffect } from "react";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 
 type ErrorType = "rate_limit" | "not_found" | "schema" | "unknown";
 
@@ -61,8 +62,14 @@ export default function Error({
   const config = ERROR_CONFIG[errorType];
 
   return (
-    <main className="min-h-dvh bg-canvas text-ink">
-      <div className="mx-auto max-w-lg px-6 pt-24">
+    <main className="dot-grid min-h-dvh text-ink">
+      <div className="mx-auto max-w-lg px-6 pt-12">
+        <Link
+          href="/"
+          className="inline-block font-mono text-sm font-semibold tracking-[0.1em] text-ink-3 hover:text-accent transition-colors mb-8"
+        >
+          ghactivity
+        </Link>
         <div className="bg-surface border border-line rounded-xl p-6">
           <div className="flex items-start gap-4">
             <div className="p-2.5 rounded-lg bg-rose-500/10">
