@@ -5,7 +5,9 @@ declare namespace Cloudflare {
 	interface Env {
 		GHACTIVITY_KV: KVNamespace;
 		NEXTJS_ENV: "production";
-		GITHUB_PAT: "";
+		GITHUB_APP_ID: string;
+		GITHUB_APP_PRIVATE_KEY: string;
+		GITHUB_APP_INSTALLATION_ID: string;
 		ASSETS: Fetcher;
 	}
 }
