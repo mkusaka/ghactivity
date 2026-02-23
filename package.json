@@ -37,9 +37,9 @@
 		"@types/node": "24.10.13",
 		"@types/react": "19.2.14",
 		"@types/react-dom": "19.2.3",
-		"oxlint": "1.48.0",
+		"oxlint": "1.49.0",
 		"tailwindcss": "4.2.0",
 		"typescript": "5.9.3",
-		"wrangler": "4.66.0"
+		"wrangler": "4.67.0"
 	}
 }
