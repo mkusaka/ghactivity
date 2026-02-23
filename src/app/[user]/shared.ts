@@ -1,6 +1,7 @@
 // src/app/[user]/shared.ts
 import "server-only";
 import { Octokit } from "@octokit/rest";
+import { createAppAuth } from "@octokit/auth-app";
 import { safeParseGithubEvents, type GithubEvent } from "@/lib/github-events-schema";
 
 // Re-export for convenience
@@ -17,7 +18,13 @@ export async function fetchEventsWithEnv(
   page: number = 1
 ): Promise<EventsResult> {
   const kv = env.GHACTIVITY_KV;
-  const token = env.GITHUB_PAT;
+
+  // GitHub App authentication config
+  const authConfig = {
+    appId: env.GITHUB_APP_ID!,
+    privateKey: (env.GITHUB_APP_PRIVATE_KEY ?? "").replace(/\\n/g, "\n"),
+    installationId: Number(env.GITHUB_APP_INSTALLATION_ID),
+  };
 
   const listKey = `events:${user}:page:${page}`;
   const etagKey = `events:${user}:page:${page}:etag`;
@@ -29,9 +36,10 @@ export async function fetchEventsWithEnv(
     [prev, prevEtag] = await Promise.all([kv.get(listKey), kv.get(etagKey)]);
   }
 
-  // Initialize Octokit client
+  // Initialize Octokit client with GitHub App auth
   const octokit = new Octokit({
-    auth: token,
+    authStrategy: createAppAuth,
+    auth: authConfig,
     headers: prevEtag ? { "If-None-Match": prevEtag } : undefined,
   });
 
@@ -112,7 +120,10 @@ export async function fetchEventsWithEnv(
         }
       }
       // 304 but no cache - fetch without ETag
-      const freshOctokit = new Octokit({ auth: token });
+      const freshOctokit = new Octokit({
+        authStrategy: createAppAuth,
+        auth: authConfig,
+      });
       const freshResponse = await freshOctokit.activity.listPublicEventsForUser({
         username: user,
         per_page: 100,
@@ -158,9 +169,9 @@ export async function fetchEventsWithEnv(
       
       if (remaining === "0") {
         const resetDate = reset ? new Date(parseInt(reset) * 1000).toLocaleTimeString() : "soon";
-        throw new Error(`GitHub API rate limit exceeded. Resets at ${resetDate}. Set GITHUB_PAT secret for higher limits.`);
+        throw new Error(`GitHub API rate limit exceeded. Resets at ${resetDate}.`);
       }
-      throw new Error(`GitHub API access denied (403). This might be due to rate limits. Set GITHUB_PAT secret for authentication.`);
+      throw new Error(`GitHub API access denied (403). This might be due to rate limits or invalid GitHub App credentials.`);
     }
     
     if (error.status === 404) {

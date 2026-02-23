@@ -1,4 +1,5 @@
-# GitHub Personal Access Token for higher API rate limits
-# Create a token at: https://github.com/settings/tokens
-# Required scopes: public_repo (or repo for private repos)
-GITHUB_PAT=your_github_personal_access_token_here
+# GitHub App authentication
+# Create a GitHub App at: https://github.com/settings/apps
+GITHUB_APP_ID=your_app_id
+GITHUB_APP_INSTALLATION_ID=your_installation_id
+GITHUB_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
