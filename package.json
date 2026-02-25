@@ -41,7 +41,7 @@
 		"oxlint": "1.49.0",
 		"tailwindcss": "4.2.0",
 		"typescript": "5.9.3",
-		"vitest": "^4.0.18",
+		"vitest": "4.0.18",
 		"wrangler": "4.67.0"
 	}
 }
