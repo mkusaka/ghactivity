@@ -15,7 +15,8 @@
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
 		"cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
 		"typecheck": "pnpm run cf-typegen && tsc --noEmit",
-		"typecheck:ci": "tsc --noEmit"
+		"typecheck:ci": "tsc --noEmit",
+		"test": "vitest run"
 	},
 	"dependencies": {
 		"@octokit/auth-app": "^8.2.0",
@@ -40,6 +41,7 @@
 		"oxlint": "1.49.0",
 		"tailwindcss": "4.2.0",
 		"typescript": "5.9.3",
+		"vitest": "^4.0.18",
 		"wrangler": "4.67.0"
 	}
 }

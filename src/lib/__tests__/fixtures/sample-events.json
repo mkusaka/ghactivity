@@ -1,0 +1,323 @@
+[
+  {
+    "id": "8776198895",
+    "type": "DeleteEvent",
+    "actor": {
+      "id": 24956031,
+      "login": "mkusaka",
+      "display_login": "mkusaka",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mkusaka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24956031?"
+    },
+    "repo": {
+      "id": 1035362841,
+      "name": "mkusaka/ghactivity",
+      "url": "https://api.github.com/repos/mkusaka/ghactivity"
+    },
+    "payload": {
+      "ref": "fix/static-apple-icon",
+      "ref_type": "branch",
+      "full_ref": "refs/heads/fix/static-apple-icon",
+      "pusher_type": "user"
+    },
+    "public": true,
+    "created_at": "2026-02-25T05:01:19Z"
+  },
+  {
+    "id": "8776198382",
+    "type": "PushEvent",
+    "actor": {
+      "id": 24956031,
+      "login": "mkusaka",
+      "display_login": "mkusaka",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mkusaka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24956031?"
+    },
+    "repo": {
+      "id": 1035362841,
+      "name": "mkusaka/ghactivity",
+      "url": "https://api.github.com/repos/mkusaka/ghactivity"
+    },
+    "payload": {
+      "repository_id": 1035362841,
+      "push_id": 31070791750,
+      "ref": "refs/heads/main",
+      "head": "d9685172b519525e3167e3653080e8f326c9b9a8",
+      "before": "f2dd330b8ee62bf47514841fc9a0f93a0f3aba30"
+    },
+    "public": true,
+    "created_at": "2026-02-25T05:01:18Z"
+  },
+  {
+    "id": "6858173723",
+    "type": "PullRequestEvent",
+    "actor": {
+      "id": 24956031,
+      "login": "mkusaka",
+      "display_login": "mkusaka",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mkusaka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24956031?"
+    },
+    "repo": {
+      "id": 1035362841,
+      "name": "mkusaka/ghactivity",
+      "url": "https://api.github.com/repos/mkusaka/ghactivity"
+    },
+    "payload": {
+      "action": "merged",
+      "number": 87,
+      "pull_request": {
+        "url": "https://api.github.com/repos/mkusaka/ghactivity/pulls/87",
+        "id": 3323795597,
+        "number": 87,
+        "head": {
+          "ref": "fix/static-apple-icon",
+          "sha": "8545fb7f1a91ba7f801591eea6de5067b3878008",
+          "repo": {
+            "id": 1035362841,
+            "url": "https://api.github.com/repos/mkusaka/ghactivity",
+            "name": "ghactivity"
+          }
+        },
+        "base": {
+          "ref": "main",
+          "sha": "f2dd330b8ee62bf47514841fc9a0f93a0f3aba30",
+          "repo": {
+            "id": 1035362841,
+            "url": "https://api.github.com/repos/mkusaka/ghactivity",
+            "name": "ghactivity"
+          }
+        }
+      }
+    },
+    "public": true,
+    "created_at": "2026-02-25T05:01:16Z"
+  },
+  {
+    "id": "8776119616",
+    "type": "CreateEvent",
+    "actor": {
+      "id": 24956031,
+      "login": "mkusaka",
+      "display_login": "mkusaka",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mkusaka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24956031?"
+    },
+    "repo": {
+      "id": 1035362841,
+      "name": "mkusaka/ghactivity",
+      "url": "https://api.github.com/repos/mkusaka/ghactivity"
+    },
+    "payload": {
+      "ref": "fix/static-apple-icon",
+      "ref_type": "branch",
+      "full_ref": "refs/heads/fix/static-apple-icon",
+      "master_branch": "main",
+      "description": "A real-time GitHub activity timeline viewer built with Next.js and Cloudflare Workers.",
+      "pusher_type": "user"
+    },
+    "public": true,
+    "created_at": "2026-02-25T04:58:14Z"
+  },
+  {
+    "id": "6854914407",
+    "type": "WatchEvent",
+    "actor": {
+      "id": 24956031,
+      "login": "mkusaka",
+      "display_login": "mkusaka",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mkusaka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24956031?"
+    },
+    "repo": {
+      "id": 903505636,
+      "name": "xdevplatform/xurl",
+      "url": "https://api.github.com/repos/xdevplatform/xurl"
+    },
+    "payload": {
+      "action": "started"
+    },
+    "public": true,
+    "created_at": "2026-02-25T01:53:40Z",
+    "org": {
+      "id": 7451118,
+      "login": "xdevplatform",
+      "gravatar_id": "",
+      "url": "https://api.github.com/orgs/xdevplatform",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7451118?"
+    }
+  },
+  {
+    "id": "6828268738",
+    "type": "PullRequestReviewEvent",
+    "actor": {
+      "id": 24956031,
+      "login": "mkusaka",
+      "display_login": "mkusaka",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mkusaka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24956031?"
+    },
+    "repo": {
+      "id": 1018656733,
+      "name": "mkusaka/it2",
+      "url": "https://api.github.com/repos/mkusaka/it2"
+    },
+    "payload": {
+      "review": {
+        "id": 3846551368,
+        "node_id": "PRR_kwDOPLd33c7lRbdI",
+        "user": {
+          "login": "mkusaka",
+          "id": 24956031,
+          "node_id": "MDQ6VXNlcjI0OTU2MDMx",
+          "avatar_url": "https://avatars.githubusercontent.com/u/24956031?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/mkusaka",
+          "html_url": "https://github.com/mkusaka",
+          "followers_url": "https://api.github.com/users/mkusaka/followers",
+          "following_url": "https://api.github.com/users/mkusaka/following{/other_user}",
+          "gists_url": "https://api.github.com/users/mkusaka/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/mkusaka/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/mkusaka/subscriptions",
+          "organizations_url": "https://api.github.com/users/mkusaka/orgs",
+          "repos_url": "https://api.github.com/users/mkusaka/repos",
+          "events_url": "https://api.github.com/users/mkusaka/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/mkusaka/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "body": "Thank you!",
+        "commit_id": "3924dc5684b28eb40aff37e3183eb9f7ada46938",
+        "submitted_at": "2026-02-24T10:13:28Z",
+        "state": "approved",
+        "html_url": "https://github.com/mkusaka/it2/pull/38#pullrequestreview-3846551368",
+        "pull_request_url": "https://api.github.com/repos/mkusaka/it2/pulls/38",
+        "_links": {
+          "html": {
+            "href": "https://github.com/mkusaka/it2/pull/38#pullrequestreview-3846551368"
+          },
+          "pull_request": {
+            "href": "https://api.github.com/repos/mkusaka/it2/pulls/38"
+          }
+        },
+        "updated_at": "2026-02-24T10:13:28Z"
+      },
+      "pull_request": {
+        "url": "https://api.github.com/repos/mkusaka/it2/pulls/38",
+        "id": 3304336082,
+        "number": 38,
+        "head": {
+          "ref": "patch-1",
+          "sha": "3924dc5684b28eb40aff37e3183eb9f7ada46938",
+          "repo": {
+            "id": 1161976527,
+            "url": "https://api.github.com/repos/balcsida/it2",
+            "name": "it2"
+          }
+        },
+        "base": {
+          "ref": "main",
+          "sha": "f2eadbbd3512709c30279027ac156b9a542df862",
+          "repo": {
+            "id": 1018656733,
+            "url": "https://api.github.com/repos/mkusaka/it2",
+            "name": "it2"
+          }
+        }
+      },
+      "action": "created"
+    },
+    "public": true,
+    "created_at": "2026-02-24T10:13:29Z"
+  },
+  {
+    "id": "6733893632",
+    "type": "ReleaseEvent",
+    "actor": {
+      "id": 24956031,
+      "login": "mkusaka",
+      "display_login": "mkusaka",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/mkusaka",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24956031?"
+    },
+    "repo": {
+      "id": 1149918825,
+      "name": "mkusaka/tfmr",
+      "url": "https://api.github.com/repos/mkusaka/tfmr"
+    },
+    "payload": {
+      "action": "published",
+      "release": {
+        "url": "https://api.github.com/repos/mkusaka/tfmr/releases/288612229",
+        "assets_url": "https://api.github.com/repos/mkusaka/tfmr/releases/288612229/assets",
+        "upload_url": "https://uploads.github.com/repos/mkusaka/tfmr/releases/288612229/assets{?name,label}",
+        "html_url": "https://github.com/mkusaka/tfmr/releases/tag/v0.0.1",
+        "id": 288612229,
+        "author": {
+          "login": "mkusaka",
+          "id": 24956031,
+          "node_id": "MDQ6VXNlcjI0OTU2MDMx",
+          "avatar_url": "https://avatars.githubusercontent.com/u/24956031?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/mkusaka",
+          "html_url": "https://github.com/mkusaka",
+          "followers_url": "https://api.github.com/users/mkusaka/followers",
+          "following_url": "https://api.github.com/users/mkusaka/following{/other_user}",
+          "gists_url": "https://api.github.com/users/mkusaka/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/mkusaka/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/mkusaka/subscriptions",
+          "organizations_url": "https://api.github.com/users/mkusaka/orgs",
+          "repos_url": "https://api.github.com/users/mkusaka/repos",
+          "events_url": "https://api.github.com/users/mkusaka/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/mkusaka/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "node_id": "RE_kwDORIpeac4RM9-F",
+        "tag_name": "v0.0.1",
+        "target_commitish": "main",
+        "name": "v0.0.1",
+        "draft": false,
+        "immutable": false,
+        "prerelease": false,
+        "created_at": "2026-02-20T07:41:09Z",
+        "updated_at": "2026-02-20T07:44:44Z",
+        "published_at": "2026-02-20T07:44:44Z",
+        "assets": [],
+        "tarball_url": "https://api.github.com/repos/mkusaka/tfmr/tarball/v0.0.1",
+        "zipball_url": "https://api.github.com/repos/mkusaka/tfmr/zipball/v0.0.1",
+        "body": "## What's Changed\r\n* Configure Renovate by @renovate[bot] in https://github.com/mkusaka/tfmr/pull/1\r\n* Update dependency go to v1.25.7 by @renovate[bot] in https://github.com/mkusaka/tfmr/pull/2\r\n* Update github.com/hashicorp/terraform-config-inspect digest to f4be3ba by @renovate[bot] in https://github.com/mkusaka/tfmr/pull/4\r\n* Rename project from terraform-module-resolve to tfmr by @mkusaka in https://github.com/mkusaka/tfmr/pull/6\r\n* feat: add GitHub Actions release workflow, GitHub Action support, and release script by @mkusaka in https://github.com/mkusaka/tfmr/pull/7\r\n\r\n## New Contributors\r\n* @mkusaka made their first contribution in https://github.com/mkusaka/tfmr/pull/6\r\n\r\n**Full Changelog**: https://github.com/mkusaka/tfmr/commits/v0.0.1",
+        "mentions_count": 2,
+        "mentions": [
+          {
+            "avatar_url": "https://avatars.githubusercontent.com/u/1832810?v=4",
+            "login": "renovate",
+            "profile_name": null,
+            "profile_url": "https://github.com/renovate",
+            "avatar_user_actor": true
+          },
+          {
+            "avatar_url": "https://avatars.githubusercontent.com/u/24956031?v=4",
+            "login": "mkusaka",
+            "profile_name": null,
+            "profile_url": "https://github.com/mkusaka",
+            "avatar_user_actor": true
+          }
+        ],
+        "short_description_html": "<h2>What's Changed</h2>\n<ul>\n<li>Configure Renovate by <a class=\"user-mention notranslate\" data-hovercard-type=\"user\" data-hovercard-url=\"/users/renovate/hovercard\" data-octo-click=\"hovercard-link-click\" data-octo-dimensions=\"link_type:self\" href=\"https://github.com/renovate\">@renovate</a>[bot] in <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"3898191440\" data-permission-text=\"Title is private\" data-url=\"https://github.com/mkusaka/tfmr/issues/1\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/mkusaka/tfmr/pull/1/hovercard\" href=\"https://github.com/mkusaka/tfmr/pull/1\">#1</a>\n</li>\n<li>Update dependency go to v1.25.7 by <a class=\"user-mention notranslate\" data-hovercard-type=\"user\" data-hovercard-url=\"/users/renovate/hovercard\" data-octo-click=\"hovercard-link-click\" data-octo-dimensions=\"link_type:self\" href=\"https://github.com/renovate\">@renovate</a>[bot] in <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"3898207889\" data-permission-text=\"Title is private\" data-url=\"https://github.com/mkusaka/tfmr/issues/2\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/mkusaka/tfmr/pull/2/hovercard\" href=\"https://github.com/mkusaka/tfmr/pull/2\">#2</a>\n</li>\n<li>Update github.com/hashicorp/terraform-config-inspect digest to f4be3ba by <a class=\"user-mention notranslate\" data-hovercard-type=\"user\" data-hovercard-url=\"/users/renovate/hovercard\" data-octo-click=\"hovercard-link-click\" data-octo-dimensions=\"link_type:self\" href=\"https://github.com/renovate\">@renovate</a>[\u2026</li>\n</ul>",
+        "is_short_description_html_truncated": true
+      }
+    },
+    "public": true,
+    "created_at": "2026-02-20T07:44:44Z"
+  }
+]
