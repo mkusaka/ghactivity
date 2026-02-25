@@ -294,11 +294,11 @@ const IssueSchema = z.object({
 const PullRequestSchema = z.object({
   url: z.string(),
   id: z.number(),
-  node_id: z.string().optional(),
-  html_url: z.string().optional(),
-  diff_url: z.string().optional(),
-  patch_url: z.string().optional(),
-  issue_url: z.string().optional(),
+  node_id: z.string(),
+  html_url: z.string(),
+  diff_url: z.string(),
+  patch_url: z.string(),
+  issue_url: z.string(),
   commits_url: z.string(),
   review_comments_url: z.string(),
   review_comment_url: z.string(),
@@ -485,7 +485,7 @@ const PullRequestReviewSchema = z.object({
   state: z.string(),
   html_url: z.string(),
   pull_request_url: z.string(),
-  author_association: z.string(),
+  author_association: z.string().optional(),
   _links: z.object({
     html: z.object({ href: z.string() }),
     pull_request: z.object({ href: z.string() }),
@@ -740,7 +740,7 @@ const PullRequestEventPayloadSchema = z.object({
  */
 const PullRequestReviewEventPayloadSchema = z.object({
   action: z.literal('created'),
-  pull_request: PullRequestSchema,
+  pull_request: SimplePullRequestSchema,
   review: PullRequestReviewSchema,
 });
 
@@ -754,7 +754,7 @@ const PullRequestReviewCommentEventPayloadSchema = z.object({
       from: z.string(),
     }).optional(),
   }).optional(),
-  pull_request: PullRequestSchema,
+  pull_request: SimplePullRequestSchema,
   comment: PullRequestReviewCommentSchema,
 });
 
@@ -763,7 +763,7 @@ const PullRequestReviewCommentEventPayloadSchema = z.object({
  */
 const PullRequestReviewThreadEventPayloadSchema = z.object({
   action: z.enum(['resolved', 'unresolved']),
-  pull_request: PullRequestSchema,
+  pull_request: SimplePullRequestSchema,
   thread: z.object({
     id: z.number(),
     node_id: z.string(),

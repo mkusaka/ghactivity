@@ -248,13 +248,14 @@ function eventIconAndText(ev: GithubEvent) {
   if (isPullRequestReviewCommentEvent(ev)) {
     const pr = ev.payload.pull_request;
     const c = ev.payload.comment;
+    const prUrl = `https://github.com/${repo}/pull/${pr?.number}`;
     return {
       icon: <MessageCircle className="w-4 h-4" />,
       color: "bg-pink-500/15 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400",
       title: "commented on a pull request",
       desc: (
         <span>
-          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> &mdash; <a className="link" href={pr?.html_url} target="_blank" rel="noreferrer">#{pr?.number}</a> {pr?.title ? `: ${pr.title}` : ""}
+          in <a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a> &mdash; <a className="link" href={prUrl} target="_blank" rel="noreferrer">#{pr?.number}</a>
           {c?.html_url ? (
             <>
               {' '}&mdash; <a className="link" href={c.html_url} target="_blank" rel="noreferrer">comment</a>
