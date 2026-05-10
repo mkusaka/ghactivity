@@ -28,11 +28,9 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: >
-          pnpm install --frozen-lockfile
-          --config.only-built-dependencies=esbuild
-          --config.only-built-dependencies=sharp
-          --config.only-built-dependencies=workerd
+        run: |
+          pnpm install --frozen-lockfile --config.strict-dep-builds=false
+          pnpm rebuild esbuild sharp workerd
 
       - name: Run lint
         run: pnpm lint
