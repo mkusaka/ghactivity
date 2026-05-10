@@ -28,7 +28,11 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: >
+          pnpm install --frozen-lockfile
+          --config.only-built-dependencies=esbuild
+          --config.only-built-dependencies=sharp
+          --config.only-built-dependencies=workerd
 
       - name: Run lint
         run: pnpm lint
