@@ -34,12 +34,12 @@
 	},
 	"devDependencies": {
 		"@octokit/openapi-types": "27.0.0",
-		"@tailwindcss/postcss": "4.2.4",
+		"@tailwindcss/postcss": "4.3.0",
 		"@types/node": "24.12.3",
 		"@types/react": "19.2.14",
 		"@types/react-dom": "19.2.3",
 		"oxlint": "1.63.0",
-		"tailwindcss": "4.2.4",
+		"tailwindcss": "4.3.0",
 		"typescript": "5.9.3",
 		"vitest": "4.1.5",
 		"wrangler": "4.90.0"
