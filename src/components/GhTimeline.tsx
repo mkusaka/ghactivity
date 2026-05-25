@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
   MessageSquare, GitBranch, GitMerge, Trash2, Users, Eye, Clock,
-  RefreshCw, ChevronDown, ChevronRight, Link2, AlertTriangle, Download, Github,
+  RefreshCw, ChevronDown, ChevronRight, Link2, AlertTriangle, Download,
   Unlock, BookOpen, MessageCircle
 } from "lucide-react";
 import { getEventsAction } from "@/app/[user]/actions";
@@ -579,7 +579,7 @@ export default function GhTimeline({
             className="btn-secondary"
             aria-label={`Open @${user} on GitHub`}
           >
-            <Github className="w-3.5 h-3.5" />
+            <Link2 className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">GitHub</span>
           </a>
         </div>
