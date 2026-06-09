@@ -37,12 +37,12 @@
 		"@octokit/openapi-types": "27.0.0",
 		"@tailwindcss/postcss": "4.3.0",
 		"@types/node": "24.12.4",
-		"@types/react": "19.2.15",
+		"@types/react": "19.2.16",
 		"@types/react-dom": "19.2.3",
-		"oxlint": "1.67.0",
+		"oxlint": "1.68.0",
 		"tailwindcss": "4.3.0",
 		"typescript": "6.0.3",
-		"vitest": "4.1.7",
-		"wrangler": "4.95.0"
+		"vitest": "4.1.8",
+		"wrangler": "4.96.0"
 	}
 }
