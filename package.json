@@ -36,8 +36,8 @@
 	"devDependencies": {
 		"@octokit/openapi-types": "27.0.0",
 		"@tailwindcss/postcss": "4.3.0",
-		"@types/node": "24.13.0",
-		"@types/react": "19.2.16",
+		"@types/node": "24.13.1",
+		"@types/react": "19.2.17",
 		"@types/react-dom": "19.2.3",
 		"oxlint": "1.68.0",
 		"tailwindcss": "4.3.0",
