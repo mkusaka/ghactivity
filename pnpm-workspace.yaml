@@ -22,4 +22,5 @@ minimumReleaseAgeExclude:
   - '@next/swc-linux-x64-musl@16.2.11'
   - '@next/swc-win32-arm64-msvc@16.2.11'
   - '@next/swc-win32-x64-msvc@16.2.11'
-  - next@16.2.11
+  # Renovate security update: next@16.3.8
+  - next@16.2.11 || 16.3.8
