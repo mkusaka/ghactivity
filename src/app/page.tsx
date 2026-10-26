@@ -3,7 +3,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { ArrowRight, Loader2 } from "lucide-react";
 
 export default function Home() {

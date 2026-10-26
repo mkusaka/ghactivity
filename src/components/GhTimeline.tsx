@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState, useTransition, useRef, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
   MessageSquare, GitBranch, GitMerge, Trash2, Users, Eye, Clock,
