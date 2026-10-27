@@ -215,6 +215,9 @@ importers:
       '@tailwindcss/vite':
         specifier: 4.3.3
         version: 4.3.3(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1))
+      '@tanstack/redact':
+        specifier: 0.1.4
+        version: 0.1.4(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1))
       '@types/node':
         specifier: 24.19.2
         version: 24.19.2
@@ -1182,6 +1185,14 @@ packages:
     resolution: {integrity: sha512-yYU8cogLeSh/ms2jh8Fj7jaba/EWa7Ja6GoUqYZaraEuCI5YS6ms6ObZgjjedm+jm6XZjdNRWBpPP6Z86oOxcw==}
     peerDependencies:
       vite: ^5.2.0 || ^6 || ^7 || ^8
+
+  '@tanstack/redact@0.1.4':
+    resolution: {integrity: sha512-TquVYMLO1gNJ3i/Q8El8uP08/oZLTyd0v5WWbvt3uMplFwOLYEqwmoisPKZLxPMAucMMIBZbx/ZLly2OlrmsZQ==}
+    peerDependencies:
+      vite: '>=5'
+    peerDependenciesMeta:
+      vite:
+        optional: true
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -2742,6 +2753,10 @@ snapshots:
       '@tailwindcss/node': 4.3.3
       '@tailwindcss/oxide': 4.3.3
       tailwindcss: 4.3.3
+      vite: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1)
+
+  '@tanstack/redact@0.1.4(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1))':
+    optionalDependencies:
       vite: 8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1)
 
   '@types/chai@5.2.3':
