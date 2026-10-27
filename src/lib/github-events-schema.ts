@@ -180,9 +180,10 @@ const RepositorySchema = z.object({
  * Simple Repository object - Used in events
  */
 const RepoSchema = z.object({
-  id: z.number(),
-  name: z.string(), // Format: "owner/repo"
-  url: z.string(),
+  // GitHub returns `repo: {}` when the source repository is gone (e.g. ForkEvent of a deleted repo)
+  id: z.number().optional(),
+  name: z.string().optional(), // Format: "owner/repo"
+  url: z.string().optional(),
 });
 
 /**

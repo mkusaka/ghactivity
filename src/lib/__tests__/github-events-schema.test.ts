@@ -46,6 +46,11 @@ describe("github-events-schema", () => {
     }
   });
 
+  it("should accept an empty repo object (source repository gone)", () => {
+    const event = { ...sampleEvents.find((e: { type: string }) => e.type === "WatchEvent"), repo: {} };
+    expect(safeParseGithubEvent(event).success).toBe(true);
+  });
+
   describe("PullRequestReviewEvent", () => {
     it("should accept a minimal pull_request object", () => {
       const event = {

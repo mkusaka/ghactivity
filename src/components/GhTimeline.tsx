@@ -169,7 +169,7 @@ function eventIconAndText(ev: GithubEvent) {
   }
 
   if (isForkEvent(ev)) {
-    return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400", title: "forked a repository", desc: (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) };
+    return { icon: <GitFork className="w-4 h-4" />, color: "bg-indigo-500/15 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400", title: "forked a repository", desc: repo ? (<a className="link" href={urlRepo} target="_blank" rel="noreferrer">{repo}</a>) : (<span>to <a className="link" href={ev.payload.forkee.html_url} target="_blank" rel="noreferrer">{ev.payload.forkee.full_name}</a></span>) };
   }
 
   if (isWatchEvent(ev)) {
