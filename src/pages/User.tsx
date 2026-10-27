@@ -1,16 +1,23 @@
 // src/pages/User.tsx
-import { Head, Link } from "@inertiajs/react";
+import { Deferred, Head, Link } from "@inertiajs/react";
 import GhTimeline from "@/components/GhTimeline";
+import TimelineSkeleton from "@/components/TimelineSkeleton";
+import UserError from "@/components/UserError";
 import type { GithubEvent } from "@/lib/github-events-schema";
 
-export default function User({ title, user, events, initialTypes, initialOwnership, pollSec }: {
+type Timeline = { events: GithubEvent[]; pollSec: number } | { error: string };
+
+export default function User({ title, user, initialTypes, initialOwnership, timeline }: {
   title: string;
   user: string;
-  events: GithubEvent[];
   initialTypes: string[];
   initialOwnership?: string;
-  pollSec: number;
+  timeline?: Timeline;
 }) {
+  if (timeline && "error" in timeline) {
+    return <UserError title={title} user={user} message={timeline.error} />;
+  }
+
   return (
     <main className="dot-grid min-h-dvh text-ink">
       <Head title={title} />
@@ -21,7 +28,9 @@ export default function User({ title, user, events, initialTypes, initialOwnersh
         >
           ghactivity
         </Link>
-        <GhTimeline user={user} initial={events} initialTypes={initialTypes} initialOwnership={initialOwnership} pollSec={pollSec} />
+        <Deferred data="timeline" fallback={<TimelineSkeleton />}>
+          {timeline && <GhTimeline user={user} initial={timeline.events} initialTypes={initialTypes} initialOwnership={initialOwnership} pollSec={timeline.pollSec} />}
+        </Deferred>
       </div>
     </main>
   );

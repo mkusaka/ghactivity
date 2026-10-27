@@ -1,4 +1,4 @@
-// src/pages/UserError.tsx
+// src/components/UserError.tsx
 import { Head, Link, router } from "@inertiajs/react";
 import { AlertTriangle, RefreshCw, Home } from "lucide-react";
 

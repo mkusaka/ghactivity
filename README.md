@@ -88,8 +88,8 @@ src/
 ├── client.tsx              # Inertia client entry
 ├── rss.ts                  # GET /:user/rss
 ├── og.tsx                  # GET /:user/opengraph-image
-├── pages/                  # Inertia pages (Home, User, UserError)
-├── components/             # GhTimeline, ThemeToggle
+├── pages/                  # Inertia pages (Home, User)
+├── components/             # GhTimeline, TimelineSkeleton, UserError, ThemeToggle
 └── lib/
     ├── events.ts           # GitHub API fetch with KV / ETag caching
     ├── github-events-schema.ts
