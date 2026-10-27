@@ -5,24 +5,24 @@ A real-time GitHub activity timeline viewer built with Hono, Inertia.js and Clou
 ## Features
 
 - 📊 Real-time GitHub activity timeline
-- 🚀 Server-side rendering with dynamic metadata
+- 🚀 Server-rendered metadata and per-user OG images
 - 💾 ETag-based caching with Cloudflare KV
-- 🔒 Secure server actions (no public API exposure)
+- 📡 RSS feed per user (`/:user/rss`, supports `type` and `ownership` filters)
 - 🎨 Beautiful UI with Tailwind CSS v4
 - 📱 Responsive design
 - 🔄 Auto-refresh with configurable intervals
 - 📥 Export events as JSON
-- 🎯 Event type filtering
+- 🎯 Event type and ownership (own / external repos) filtering
 - ♾️ Infinite scroll (up to 300 events due to GitHub API limits)
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- pnpm (or npm/yarn)
+- Node.js 22.12+ (CI uses 24)
+- pnpm
 - Cloudflare account (for deployment)
-- GitHub Personal Access Token (optional, for higher rate limits)
+- A GitHub App installed on your account (used to call the GitHub API)
 
 ### Installation
 
@@ -37,23 +37,14 @@ cd ghactivity
 pnpm install
 ```
 
-3. Set up GitHub Personal Access Token (recommended):
-
-GitHub API has rate limits: 60 requests/hour without authentication, 5000 with authentication.
+3. Set up GitHub App credentials:
 
 ```bash
-# Copy the example file
 cp .dev.vars.example .dev.vars
-
-# Edit .dev.vars and add your GitHub PAT
-# GITHUB_PAT=ghp_your_token_here
+# Fill in GITHUB_APP_ID, GITHUB_APP_INSTALLATION_ID and GITHUB_APP_PRIVATE_KEY
 ```
 
-To create a GitHub Personal Access Token:
-1. Go to https://github.com/settings/tokens
-2. Click "Generate new token (classic)"
-3. Give it a name and select `public_repo` scope
-4. Copy the token and add it to `.dev.vars`
+Create the app at https://github.com/settings/apps (no extra permissions are needed for public events), install it, and generate a private key. `GITHUB_APP_PRIVATE_KEY` takes the PEM with newlines escaped as `\n`; both PKCS#1 and PKCS#8 keys work.
 
 4. Run the development server:
 ```bash
@@ -68,7 +59,7 @@ Open [http://localhost:5173](http://localhost:5173) with your browser.
 
 ```bash
 # Create a KV namespace for caching
-wrangler kv:namespace create GHACTIVITY_KV
+pnpm wrangler kv namespace create GHACTIVITY_KV
 
 # Copy the ID from the output and update wrangler.jsonc
 ```
@@ -76,47 +67,47 @@ wrangler kv:namespace create GHACTIVITY_KV
 ### 2. Set up Secrets (Production)
 
 ```bash
-# Add your GitHub PAT as a secret (optional but recommended)
-wrangler secret put GITHUB_PAT
+pnpm wrangler secret put GITHUB_APP_ID
+pnpm wrangler secret put GITHUB_APP_INSTALLATION_ID
+pnpm wrangler secret put GITHUB_APP_PRIVATE_KEY
 ```
 
 ### 3. Deploy
 
 ```bash
-# Deploy to Cloudflare Workers
-pnpm deploy
+# Build with Vite and deploy with Wrangler
+pnpm run deploy
 ```
 
 ## Project Structure
 
 ```
 src/
-├── app/
-│   ├── [user]/
-│   │   ├── page.tsx          # User activity page
-│   │   ├── actions.ts        # Server actions
-│   │   ├── shared.ts         # Shared utilities
-│   │   ├── error.tsx         # Error boundary
-│   │   └── opengraph-image.tsx # OG image generation
-│   ├── page.tsx              # Home page
-│   ├── layout.tsx            # Root layout
-│   └── globals.css           # Global styles
-└── components/
-    └── GhTimeline.tsx        # Timeline component
+├── server.tsx              # Hono app: routes and Inertia middleware
+├── root-view.tsx           # HTML shell (meta / OG tags, theme script, assets)
+├── client.tsx              # Inertia client entry
+├── rss.ts                  # GET /:user/rss
+├── og.tsx                  # GET /:user/opengraph-image
+├── pages/                  # Inertia pages (Home, User, UserError)
+├── components/             # GhTimeline, ThemeToggle
+└── lib/
+    ├── events.ts           # GitHub API fetch with KV / ETag caching
+    ├── github-events-schema.ts
+    └── rss-generator-feed.ts
 ```
 
 ## Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `GITHUB_PAT` | GitHub Personal Access Token for higher rate limits | No (but recommended) |
-| `GHACTIVITY_KV` | Cloudflare KV namespace for caching | Yes (auto-configured) |
+| `GITHUB_APP_ID` | GitHub App ID | Yes |
+| `GITHUB_APP_INSTALLATION_ID` | Installation ID of the app | Yes |
+| `GITHUB_APP_PRIVATE_KEY` | App private key (PEM, `\n`-escaped) | Yes |
+| `GHACTIVITY_KV` | Cloudflare KV namespace for caching (binding in `wrangler.jsonc`) | Yes |
 
 ## API Rate Limits
 
-- **Without authentication**: 60 requests/hour
-- **With authentication**: 5,000 requests/hour
-- **With GitHub App**: 5,000-15,000 requests/hour
+- **GitHub App installation**: 5,000-15,000 requests/hour
 - **Pagination limit**: Maximum 3 pages × 100 events per page (300 events total)
 
 The app uses ETag caching to minimize API calls and falls back to cached data when rate limited.
@@ -131,7 +122,7 @@ The app uses ETag caching to minimize API calls and falls back to cached data wh
 - [Cloudflare Workers](https://workers.cloudflare.com/) - Edge computing platform
 - [Tailwind CSS v4](https://tailwindcss.com/) - Utility-first CSS framework
 - [Lucide React](https://lucide.dev/) - Icon library
-- [Framer Motion](https://www.framer.com/motion/) - Animation library
+- [Motion](https://motion.dev/) - Animation library
 
 ## License
 
