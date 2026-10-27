@@ -1,6 +1,7 @@
 // src/lib/events.ts
 import { Octokit } from "@octokit/rest";
 import { createAppAuth } from "@octokit/auth-app";
+import { createPrivateKey } from "node:crypto";
 import { safeParseGithubEvents, type GithubEvent } from "@/lib/github-events-schema";
 
 // Re-export for convenience
@@ -21,7 +22,9 @@ export async function fetchEventsWithEnv(
   // GitHub App authentication config
   const authConfig = {
     appId: env.GITHUB_APP_ID!,
-    privateKey: (env.GITHUB_APP_PRIVATE_KEY ?? "").replace(/\\n/g, "\n"),
+    // The workerd build of universal-github-app-jwt only accepts PKCS#8, so convert (e.g. PKCS#1) keys here
+    privateKey: createPrivateKey((env.GITHUB_APP_PRIVATE_KEY ?? "").replace(/\\n/g, "\n"))
+      .export({ type: "pkcs8", format: "pem" }) as string,
     installationId: Number(env.GITHUB_APP_INSTALLATION_ID),
   };
 
