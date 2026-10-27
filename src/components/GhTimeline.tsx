@@ -1,8 +1,5 @@
 // src/components/GhTimeline.tsx
-"use client";
-
 import { useEffect, useMemo, useState, useTransition, useRef, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import {
   GitCommit, GitPullRequest, Star, GitFork, Tag,
@@ -10,8 +7,7 @@ import {
   RefreshCw, ChevronDown, ChevronRight, Link2, AlertTriangle, Download,
   Unlock, BookOpen, MessageCircle
 } from "lucide-react";
-import { getEventsAction } from "@/app/[user]/actions";
-import type { GithubEvent } from "@/app/[user]/shared";
+import type { EventsResult, GithubEvent } from "@/lib/events";
 import {
   isPushEvent, isPullRequestEvent, isIssuesEvent, isIssueCommentEvent,
   isPullRequestReviewEvent, isReleaseEvent, isForkEvent, isWatchEvent,
@@ -21,6 +17,13 @@ import {
 } from "@/lib/github-events-schema";
 
 /* ─── Helpers ─────────────────────────────────────── */
+
+async function getEvents(user: string, page: number): Promise<EventsResult> {
+  const res = await fetch(`/${encodeURIComponent(user)}/events?page=${page}`);
+  const body = await res.json() as EventsResult & { error?: string };
+  if (!res.ok) throw new Error(body.error);
+  return body;
+}
 
 function fmtRel(iso: string) {
   const d = new Date(iso);
@@ -312,11 +315,10 @@ export default function GhTimeline({
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const observerTarget = useRef<HTMLDivElement>(null);
-  const sp = useSearchParams();
 
   // Sync allowed set and ownership to URL query without triggering a navigation
   useEffect(() => {
-    const params = new URLSearchParams(sp?.toString());
+    const params = new URLSearchParams(window.location.search);
     if (allowed.size === 0) {
       params.delete('type');
     } else {
@@ -333,7 +335,7 @@ export default function GhTimeline({
     if (newUrl !== window.location.pathname + (window.location.search ? `?${window.location.search.slice(1)}` : '')) {
       window.history.replaceState(null, '', newUrl);
     }
-  }, [allowed, ownership, sp]);
+  }, [allowed, ownership]);
 
   // Load more events (GitHub API limits to 300 events total)
   const loadMore = useCallback(async () => {
@@ -349,7 +351,7 @@ export default function GhTimeline({
         return;
       }
 
-      const { events: newEvents } = await getEventsAction(user, nextPage);
+      const { events: newEvents } = await getEvents(user, nextPage);
 
       // Determine no next page (less than 100 items = end)
       if (newEvents.length === 0) {
@@ -406,7 +408,7 @@ export default function GhTimeline({
 
       startTransition(async () => {
         try {
-          const { events: newEvents } = await getEventsAction(user, 1);
+          const { events: newEvents } = await getEvents(user, 1);
           // Update only the first 100 events to preserve pagination
           setEvents(prev => {
             if (page === 1) {
@@ -526,7 +528,7 @@ export default function GhTimeline({
     startTransition(async () => {
       try {
         setError("");
-        const { events } = await getEventsAction(user, 1);
+        const { events } = await getEvents(user, 1);
         setEvents(events);
         setPage(1);
         setHasMore(true);

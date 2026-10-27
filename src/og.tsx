@@ -1,22 +1,20 @@
-// src/app/[user]/opengraph-image.tsx
-import { ImageResponse } from "next/og";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { fetchEventsWithEnv } from "./shared";
+// src/og.tsx
+import type { Context } from "hono";
+import { ImageResponse, cache } from "@cf-wasm/og/workerd";
+import { fetchEventsWithEnv } from "./lib/events";
 
-export const runtime = "nodejs";
-export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+const size = { width: 1200, height: 630 };
 
-export default async function Og({ params }: { params: Promise<{ user: string }> }) {
-  const { user } = await params;
-  const { env } = getCloudflareContext();
-  const { events } = await fetchEventsWithEnv(env, user);
+export async function ogHandler(c: Context<{ Bindings: CloudflareEnv }>) {
+  cache.setExecutionContext(c.executionCtx);
+  const user = c.req.param("user")!;
+  const { events } = await fetchEventsWithEnv(c.env, user);
   const first = events?.[0];
   const subtitle = first?.type && first?.repo?.name
     ? `${first.type.replace(/Event$/, "")} in ${first.repo.name}`
     : "Recent GitHub Activity";
 
-  return new ImageResponse(
+  return ImageResponse.async(
     (
       <div
         style={{

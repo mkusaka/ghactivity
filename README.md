@@ -1,6 +1,6 @@
 # GitHub Activity Viewer
 
-A real-time GitHub activity timeline viewer built with Next.js and Cloudflare Workers.
+A real-time GitHub activity timeline viewer built with Hono, Inertia.js and Cloudflare Workers.
 
 ## Features
 
@@ -60,7 +60,7 @@ To create a GitHub Personal Access Token:
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser.
+Open [http://localhost:5173](http://localhost:5173) with your browser.
 
 ## Deployment to Cloudflare Workers
 
@@ -125,7 +125,9 @@ The app uses ETag caching to minimize API calls and falls back to cached data wh
 
 ## Technologies Used
 
-- [Next.js](https://nextjs.org/) - React framework
+- [Hono](https://hono.dev/) - Web framework
+- [Inertia.js](https://inertiajs.com/) (React) via [@hono/inertia](https://github.com/honojs/middleware/tree/main/packages/inertia)
+- [Vite](https://vite.dev/) with [@cloudflare/vite-plugin](https://developers.cloudflare.com/workers/vite-plugin/)
 - [Cloudflare Workers](https://workers.cloudflare.com/) - Edge computing platform
 - [Tailwind CSS v4](https://tailwindcss.com/) - Utility-first CSS framework
 - [Lucide React](https://lucide.dev/) - Icon library

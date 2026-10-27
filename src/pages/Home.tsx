@@ -1,26 +1,25 @@
-// src/app/page.tsx
-"use client";
-
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+// src/pages/Home.tsx
+import { Head, router } from "@inertiajs/react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { ArrowRight, Loader2 } from "lucide-react";
 
-export default function Home() {
+export default function Home({ title }: { title: string }) {
   const [user, setUser] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
 
   const go = () => {
     if (user.trim() && !isPending) {
-      startTransition(() => {
-        router.push(`/${encodeURIComponent(user.trim())}`);
+      router.visit(`/${encodeURIComponent(user.trim())}`, {
+        onStart: () => setIsPending(true),
+        onFinish: () => setIsPending(false),
       });
     }
   };
 
   return (
     <main className="dot-grid min-h-dvh flex flex-col items-center justify-center px-6">
+      <Head title={title} />
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

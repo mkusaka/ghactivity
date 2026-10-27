@@ -1,5 +1,4 @@
 // src/components/ThemeToggle.tsx
-"use client";
 
 import { useEffect, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";

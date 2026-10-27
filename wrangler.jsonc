@@ -6,19 +6,12 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "ghactivity",
 	"account_id": "7329283460e5efe7b1e75190a87dfdd4",
-	"main": ".open-next/worker.js",
-	"build": {
-		"command": "pnpm opennextjs-cloudflare build"
-	},
+	"main": "./src/server.tsx",
 	"compatibility_date": "2025-03-01",
 	"compatibility_flags": [
 		"nodejs_compat",
 		"global_fetch_strictly_public"
 	],
-	"assets": {
-		"binding": "ASSETS",
-		"directory": ".open-next/assets"
-	},
 	"observability": {
 		"enabled": true
 	},
@@ -29,12 +22,9 @@
 			"binding": "GHACTIVITY_KV",
 			"id": "0d3b78c7dbc147a6846e786fc6c1384f"
 		}
-	],
+	]
 
-	// Environment variables (actual secrets are set via wrangler secret)
-	"vars": {
-		"NEXTJS_ENV": "production"
-	}
+	// Secrets (GITHUB_APP_*) are set via wrangler secret
 
 	/**
 	 * Smart Placement

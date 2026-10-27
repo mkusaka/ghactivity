@@ -1,19 +1,14 @@
-// src/app/[user]/rss/route.ts
-import { NextResponse } from "next/server";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { fetchEventsWithEnv } from "../shared";
+// src/rss.ts
+import type { Context } from "hono";
+import { fetchEventsWithEnv } from "./lib/events";
 import { generateRssFeed } from "@/lib/rss-generator-feed";
-import crypto from "crypto";
+import crypto from "node:crypto";
 
-export const runtime = "nodejs";
-
-export async function GET(
-  request: Request,
-  context: { params: Promise<{ user: string }> }
-) {
+export async function rssHandler(c: Context<{ Bindings: CloudflareEnv }>) {
+  const request = c.req.raw;
   try {
-    const { user } = await context.params;
-    const { env } = getCloudflareContext();
+    const user = c.req.param("user")!;
+    const env = c.env;
     
     // Parse URL query parameters for event type filtering
     const url = new URL(request.url);
@@ -49,7 +44,7 @@ export async function GET(
     const ifNoneMatch = request.headers.get('if-none-match');
     if (ifNoneMatch === etag) {
       // Return 304 Not Modified if content hasn't changed
-      return new NextResponse(null, {
+      return new Response(null, {
         status: 304,
         headers: {
           "ETag": etag,
@@ -60,7 +55,7 @@ export async function GET(
     }
     
     // Return RSS with optimized cache headers
-    return new NextResponse(rssFeed, {
+    return new Response(rssFeed, {
       status: 200,
       headers: {
         "Content-Type": "application/rss+xml; charset=utf-8",
@@ -95,7 +90,7 @@ export async function GET(
   </channel>
 </rss>`;
     
-    return new NextResponse(errorFeed, {
+    return new Response(errorFeed, {
       status: 500,
       headers: {
         "Content-Type": "application/rss+xml; charset=utf-8",
