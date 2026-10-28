@@ -7,6 +7,7 @@
     "config:best-practices",
     "group:definitelyTyped",
     ":separateMultipleMajorReleases",
+    "customManagers:githubActionsVersions",
   ],
   packageRules: [
     {
