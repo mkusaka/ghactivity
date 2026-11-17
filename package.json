@@ -24,7 +24,7 @@
 		"@octokit/rest": "^22.0.0",
 		"@octokit/types": "^18.0.0",
 		"feed": "^6.0.0",
-		"hono": "^4.13.13",
+		"hono": "^4.13.16",
 		"lucide-react": "^1.0.0",
 		"motion": "^14.0.0",
 		"react": "^19.0.0",
