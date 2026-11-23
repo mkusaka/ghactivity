@@ -180,7 +180,7 @@ importers:
         version: 0.5.0(react@19.3.1)
       '@hono/inertia':
         specifier: ^0.8.1
-        version: 0.8.1(hono@4.13.18)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1))
+        version: 0.8.1(hono@4.13.19)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1))
       '@inertiajs/react':
         specifier: ^3.9.1
         version: 3.11.0(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -198,7 +198,7 @@ importers:
         version: 6.0.0
       hono:
         specifier: ^4.13.13
-        version: 4.13.18
+        version: 4.13.19
       lucide-react:
         specifier: ^1.0.0
         version: 1.73.0(@types/react@19.3.0)(react@19.3.1)
@@ -1557,8 +1557,8 @@ packages:
     resolution: {integrity: sha512-Ox1pJVrDCyGHMG9CFg1tmrRUMRPRsAWYc/PinY0XzJU4K7y7vjNoLKIQ7BR5UJMCxNN8EM1MNDmHWA/B3aZUuw==}
     engines: {node: '>=6'}
 
-  hono@4.13.18:
-    resolution: {integrity: sha512-H9q/E1XizaWstJxUW881dmLxEj+t/TrGGnyxINkm4+sK0qUwsMtFdo2BWI9Vs3cIS19MU6b6iCijoUoEf4f3DA==}
+  hono@4.13.19:
+    resolution: {integrity: sha512-KmXvQAXwcAHV+muzbIwoJ23niEB5nMoDVr9WcRkU8mvjUECm/1+7v4Jgp7P7a+H6MLFrh+vXrGonGrGS+RQfkA==}
     engines: {node: '>=16.9.0'}
 
   htmlparser2@9.1.0:
@@ -2261,9 +2261,9 @@ snapshots:
       htmlparser2: 9.1.0
       react: 19.3.1
 
-  '@hono/inertia@0.8.1(hono@4.13.18)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1))':
+  '@hono/inertia@0.8.1(hono@4.13.19)(vite@8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1))':
     dependencies:
-      hono: 4.13.18
+      hono: 4.13.19
     optionalDependencies:
       vite: 8.3.8(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.36.0)(yaml@2.9.1)
 
@@ -2985,7 +2985,7 @@ snapshots:
 
   hex-rgb@4.3.0: {}
 
-  hono@4.13.18: {}
+  hono@4.13.19: {}
 
   htmlparser2@9.1.0:
     dependencies:
